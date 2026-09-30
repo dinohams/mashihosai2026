@@ -1,789 +1,586 @@
 <!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#152a4a">
-  <title>益子芳星高校 文化祭2026</title>
-  <style>
-    :root{
-      --bg:#f5f2ea;
-      --paper:#fffdf8;
-      --ink:#172033;
-      --muted:#72798a;
-      --line:#e5dfd2;
-      --navy:#152a4a;
-      --blue:#2e67d1;
-      --yellow:#f6c453;
-      --orange:#e98b46;
-      --red:#cf5b55;
-      --green:#4c9477;
-      --shadow:0 10px 28px rgba(40,35,25,.10);
-      --radius:22px;
-      --bottom:78px;
-    }
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{
-      margin:0;
-      font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI","Yu Gothic",sans-serif;
-      color:var(--ink);
-      background:
-        radial-gradient(circle at 8% 0%, rgba(246,196,83,.18), transparent 28%),
-        radial-gradient(circle at 92% 7%, rgba(46,103,209,.10), transparent 30%),
-        var(--bg);
-      padding-bottom:calc(var(--bottom) + env(safe-area-inset-bottom));
-    }
-    button,input,select{font:inherit}
-    button{cursor:pointer}
-    .app{width:min(100%,760px);margin:0 auto}
-    .topbar{
-      position:sticky;top:0;z-index:50;
-      padding:calc(9px + env(safe-area-inset-top)) 14px 9px;
-      background:rgba(245,242,234,.91);
-      backdrop-filter:blur(18px);
-      border-bottom:1px solid rgba(210,203,189,.75)
-    }
-    .topbar-inner{display:flex;align-items:center;justify-content:space-between;gap:10px}
-    .brand small{display:block;font-size:10px;letter-spacing:.12em;font-weight:900;color:#8b806f}
-    .brand h1{font-size:18px;margin:2px 0 0}
-    .teacher-btn{
-      border:1px solid var(--line);background:var(--paper);
-      color:var(--navy);font-weight:900;border-radius:999px;padding:9px 12px;
-      box-shadow:0 4px 12px rgba(0,0,0,.05)
-    }
-    main{padding:14px 14px 28px}
-    .view{display:none;animation:fade .18s ease}
-    .view.active{display:block}
-    @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>文化祭 3D校内マップ試作</title>
+<style>
+  :root{
+    --bg:#eef3f8;
+    --ink:#162033;
+    --muted:#6d788a;
+    --surface:rgba(255,255,255,.93);
+    --line:rgba(22,32,51,.12);
+    --blue:#2366d1;
+    --cyan:#62b7ff;
+    --accent:#ffd35c;
+    --shadow:0 18px 55px rgba(24,39,68,.18);
+  }
+  *{box-sizing:border-box}
+  html,body{width:100%;height:100%;margin:0;overflow:hidden}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI","Yu Gothic",sans-serif;
+    background:var(--bg);color:var(--ink)
+  }
+  #app{position:relative;width:100%;height:100%}
+  #scene{position:absolute;inset:0}
+  canvas{display:block;width:100%;height:100%;touch-action:none}
 
-    .hero{
-      border-radius:30px;
-      padding:26px 20px 24px;
-      color:white;
-      background:
-        linear-gradient(135deg,rgba(21,42,74,.98),rgba(46,103,209,.94)),
-        repeating-linear-gradient(135deg,transparent,transparent 18px,rgba(255,255,255,.025) 18px,rgba(255,255,255,.025) 19px);
-      position:relative;overflow:hidden;
-      box-shadow:var(--shadow)
-    }
-    .hero:before{
-      content:"";
-      position:absolute;right:-50px;top:-62px;
-      width:180px;height:180px;border-radius:50%;
-      border:28px solid rgba(246,196,83,.22)
-    }
-    .hero:after{
-      content:"2026";
-      position:absolute;right:14px;bottom:-10px;
-      font-size:62px;font-weight:1000;color:rgba(255,255,255,.07)
-    }
-    .hero .kicker{font-size:11px;font-weight:900;letter-spacing:.18em;color:#ffe09a}
-    .hero h2{font-size:31px;line-height:1.16;margin:10px 0 8px;position:relative;z-index:1}
-    .hero p{margin:0;font-size:13px;line-height:1.7;opacity:.92;position:relative;z-index:1}
-    .hero-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
-    .hero-tags span{
-      padding:6px 9px;border-radius:999px;background:rgba(255,255,255,.12);
-      font-size:11px;font-weight:800
-    }
+  .topbar{
+    position:absolute;z-index:10;left:14px;right:14px;top:calc(12px + env(safe-area-inset-top));
+    display:flex;align-items:center;justify-content:space-between;gap:10px;pointer-events:none
+  }
+  .titlebox{
+    pointer-events:auto;background:var(--surface);backdrop-filter:blur(15px);
+    border:1px solid rgba(255,255,255,.7);border-radius:18px;padding:10px 13px;
+    box-shadow:0 8px 24px rgba(24,39,68,.10)
+  }
+  .titlebox small{display:block;font-size:10px;font-weight:900;letter-spacing:.12em;color:#70809a}
+  .titlebox strong{display:block;font-size:17px;margin-top:2px}
+  .reset{
+    pointer-events:auto;border:0;background:var(--surface);backdrop-filter:blur(15px);
+    border-radius:50%;width:45px;height:45px;box-shadow:0 8px 24px rgba(24,39,68,.10);
+    font-size:20px;color:var(--ink)
+  }
 
-    .section-head{
-      display:flex;justify-content:space-between;align-items:end;gap:10px;
-      margin:23px 2px 11px
-    }
-    .section-head h2{margin:0;font-size:19px}
-    .section-head span{font-size:11px;color:var(--muted);font-weight:800}
+  .floor-tabs{
+    position:absolute;z-index:11;right:14px;top:50%;transform:translateY(-50%);
+    display:grid;gap:8px
+  }
+  .floor-btn{
+    border:1px solid rgba(255,255,255,.8);
+    background:rgba(255,255,255,.90);backdrop-filter:blur(14px);
+    color:#5e6a7c;border-radius:15px;padding:11px 12px;min-width:60px;
+    font-weight:950;box-shadow:0 7px 22px rgba(24,39,68,.10);
+    transition:.22s ease
+  }
+  .floor-btn.active{
+    color:#fff;background:linear-gradient(135deg,#1659c9,#408cf6);
+    transform:scale(1.07);box-shadow:0 8px 26px rgba(35,102,209,.30)
+  }
 
-    .now-card,.card{
-      background:var(--paper);border:1px solid var(--line);
-      border-radius:var(--radius);box-shadow:0 6px 18px rgba(50,40,25,.05)
-    }
-    .now-card{padding:17px;border-left:7px solid var(--yellow)}
-    .now-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
-    .live{font-size:11px;font-weight:1000;color:#a86b00;display:flex;align-items:center;gap:7px}
-    .live i{width:8px;height:8px;border-radius:50%;background:var(--yellow);box-shadow:0 0 0 5px rgba(246,196,83,.17)}
-    .time-chip{font-size:11px;font-weight:900;background:#f2eee4;padding:6px 9px;border-radius:999px}
-    .now-card h3{margin:12px 0 6px;font-size:20px}
-    .meta{display:flex;flex-wrap:wrap;gap:8px 13px;color:var(--muted);font-size:12px;font-weight:800}
+  .help{
+    position:absolute;z-index:9;left:14px;bottom:calc(18px + env(safe-area-inset-bottom));
+    background:rgba(255,255,255,.87);backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,.75);border-radius:15px;
+    padding:9px 11px;color:#647186;font-size:11px;font-weight:800;
+    box-shadow:0 7px 22px rgba(24,39,68,.08);pointer-events:none
+  }
+  .help b{color:#33415a}
+  .orientation{
+    position:absolute;z-index:8;right:15px;bottom:calc(18px + env(safe-area-inset-bottom));
+    background:rgba(255,255,255,.84);border-radius:14px;padding:9px 11px;
+    font-size:10px;font-weight:900;color:#536078;box-shadow:0 7px 20px rgba(24,39,68,.08);
+    pointer-events:none
+  }
 
-    .quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
-    .quick{
-      border:0;text-align:left;padding:16px;background:var(--paper);
-      border-radius:20px;border:1px solid var(--line);box-shadow:0 6px 18px rgba(40,32,20,.045)
-    }
-    .quick .icon{
-      width:43px;height:43px;border-radius:14px;display:grid;place-items:center;
-      font-size:23px;background:#f6efe3
-    }
-    .quick b{display:block;margin-top:10px;font-size:15px}
-    .quick small{display:block;color:var(--muted);font-size:11px;font-weight:800;margin-top:3px}
+  .sheet{
+    position:absolute;z-index:30;left:50%;bottom:0;width:min(100%,640px);
+    transform:translate(-50%,110%);transition:.27s cubic-bezier(.2,.8,.2,1);
+    padding:0 12px calc(12px + env(safe-area-inset-bottom));pointer-events:none
+  }
+  .sheet.show{transform:translate(-50%,0);pointer-events:auto}
+  .sheet-inner{
+    background:rgba(255,255,255,.97);backdrop-filter:blur(18px);
+    border:1px solid rgba(255,255,255,.85);border-radius:25px 25px 18px 18px;
+    box-shadow:var(--shadow);padding:17px 17px 16px
+  }
+  .handle{width:38px;height:4px;background:#d9dee7;border-radius:999px;margin:0 auto 12px}
+  .sheet-head{display:flex;justify-content:space-between;gap:12px;align-items:start}
+  .room-kicker{font-size:10px;font-weight:950;letter-spacing:.12em;color:#6480ab}
+  .sheet h2{margin:3px 0 4px;font-size:23px}
+  .sub{font-size:12px;color:var(--muted);font-weight:800}
+  .close{
+    border:0;background:#edf1f6;color:#516078;width:36px;height:36px;border-radius:50%;font-weight:900
+  }
+  .program{
+    margin-top:14px;padding:13px;border-radius:16px;background:#f5f8fc;border:1px solid #e6ebf2
+  }
+  .program strong{display:block;font-size:15px}
+  .program p{margin:6px 0 0;font-size:12px;line-height:1.6;color:#697589}
+  .badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .badge{font-size:10px;font-weight:900;padding:6px 8px;border-radius:999px;background:#fff;border:1px solid #e0e6ee}
+  .badge.crowd{color:#a06400;background:#fff5d8;border-color:#f4deb0}
 
-    .notice-list,.program-list,.timeline,.admin-list{display:grid;gap:10px}
-    .notice{
-      padding:14px 15px;background:var(--paper);border:1px solid var(--line);
-      border-radius:17px
-    }
-    .notice.important{border-left:6px solid var(--red);background:#fff8f6}
-    .notice strong{display:block;font-size:14px;margin-bottom:4px}
-    .notice p{margin:0;font-size:12px;line-height:1.6;color:var(--muted)}
+  .legend{
+    position:absolute;z-index:8;left:14px;top:94px;
+    background:rgba(255,255,255,.78);backdrop-filter:blur(10px);
+    border-radius:13px;padding:8px 10px;font-size:10px;color:#6d788a;
+    box-shadow:0 6px 18px rgba(24,39,68,.07);pointer-events:none
+  }
+  .legend span{display:inline-flex;align-items:center;gap:5px;margin-right:8px}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+  .dot.class{background:#6aa9ff}.dot.special{background:#8cd6be}.dot.wc{background:#f0a8b8}
 
+  @media(max-width:620px){
+    .titlebox strong{font-size:15px}
+    .floor-tabs{right:10px}
+    .floor-btn{min-width:54px;padding:10px 9px}
+    .legend{top:88px}
+    .help{max-width:240px}
+  }
+</style>
 
-    .map-wrap{
-      overflow:auto;
-      padding:4px 0 4px;
-      -webkit-overflow-scrolling:touch
-    }
-    .map-stage{
-      min-width:680px;
-      height:560px;
-      position:relative;
-      margin:auto;
-      border-radius:26px;
-      border:1px solid var(--line);
-      background:
-        radial-gradient(circle at 20% 85%, rgba(246,196,83,.15), transparent 24%),
-        linear-gradient(160deg,#fffefa 0 54%,#eee9df 55% 100%);
-      box-shadow:var(--shadow);
-      overflow:hidden
-    }
-    .map-stage:before{
-      content:"";
-      position:absolute;inset:0;
-      background-image:linear-gradient(rgba(21,42,74,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(21,42,74,.035) 1px,transparent 1px);
-      background-size:28px 28px;
-      pointer-events:none
-    }
-    .map-title-note{
-      position:absolute;left:17px;top:16px;z-index:2;
-      padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.9);
-      border:1px solid var(--line);font-size:11px;font-weight:900;color:var(--muted)
-    }
-    .floor-svg{
-      display:block;width:760px;height:560px;position:relative;z-index:1
-    }
-    .map-floor{
-      cursor:pointer;
-      transition:opacity .28s ease,filter .28s ease,transform .28s ease;
-      transform-box:fill-box;
-      transform-origin:center
-    }
-    .map-floor.inactive{
-      opacity:.24;
-      filter:grayscale(.72)
-    }
-    .map-floor.active{
-      opacity:1;
-      filter:url(#floorGlow);
-      transform:translate(-5px,7px) scale(1.012)
-    }
-    .floor-base{stroke-width:3.2;stroke-linejoin:round}
-    .room-shape{stroke-width:1.8;stroke-linejoin:round;transition:filter .15s ease,opacity .15s ease}
-    .room-hit{cursor:pointer}
-    .room-hit:hover .room-shape{filter:brightness(1.08)}
-    .room-label{
-      pointer-events:none;
-      font-size:11px;
-      font-weight:900;
-      text-anchor:middle;
-      dominant-baseline:middle;
-      paint-order:stroke;
-      stroke:rgba(255,255,255,.82);
-      stroke-width:3px;
-      stroke-linejoin:round;
-      fill:#20304a
-    }
-    .room-label.small{font-size:9.5px}
-    .room-label.tiny{font-size:8.3px}
-    .floor-name{
-      font-size:23px;font-weight:1000;letter-spacing:.02em;
-      paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round
-    }
-    .floor-3 .floor-base{fill:#dff3ea;stroke:#3b8065}
-    .floor-3 .room-shape{fill:#effaf5;stroke:#74a98f}
-    .floor-3 .floor-name{fill:#2e785a}
-    .floor-2 .floor-base{fill:#fff0cf;stroke:#a96d17}
-    .floor-2 .room-shape{fill:#fff8e8;stroke:#d2a75e}
-    .floor-2 .floor-name{fill:#a56810}
-    .floor-1 .floor-base{fill:#e6efff;stroke:#3565b0}
-    .floor-1 .room-shape{fill:#f2f6ff;stroke:#7b9bcb}
-    .floor-1 .floor-name{fill:#285caa}
-    .east-label,.west-label{
-      position:absolute;z-index:3;padding:6px 10px;border-radius:999px;
-      background:rgba(255,255,255,.92);border:1px solid var(--line);
-      font-size:10px;font-weight:900;color:var(--navy)
-    }
-    .east-label{left:19px;bottom:16px}
-    .west-label{right:18px;top:16px}
-    .map-hint{
-      font-size:12px;color:var(--muted);line-height:1.65;margin:10px 2px 0
-    }
-    .floor-filter{display:flex;gap:8px;overflow:auto;margin-bottom:10px}
-    .filter-btn{
-      flex:1 0 82px;border:1px solid var(--line);background:var(--paper);
-      color:var(--muted);font-weight:900;font-size:12px;padding:10px 12px;border-radius:999px;
-      transition:.2s ease
-    }
-    .filter-btn.active{background:var(--navy);color:white;border-color:var(--navy);box-shadow:0 6px 16px rgba(21,42,74,.18)}
-    .map-room-info{
-      margin-top:10px;padding:13px 14px;border:1px solid var(--line);border-radius:17px;
-      background:var(--paper);box-shadow:0 5px 14px rgba(35,28,18,.045);
-      display:flex;justify-content:space-between;gap:10px;align-items:center
-    }
-    .map-room-info strong{font-size:14px}
-    .map-room-info small{display:block;color:var(--muted);font-weight:800;margin-top:3px}
-    .map-room-info .pill{flex:0 0 auto;padding:6px 9px;border-radius:999px;background:#f2eee4;color:#5f584e;font-size:10px;font-weight:900}
-
-
-    .search{
-      width:100%;border:1px solid var(--line);background:var(--paper);
-      border-radius:15px;padding:12px 13px;outline:none;margin-bottom:9px
-    }
-    .chips{display:flex;gap:7px;overflow:auto;padding-bottom:9px}
-    .chip{
-      flex:0 0 auto;border:1px solid var(--line);background:var(--paper);
-      border-radius:999px;padding:8px 11px;color:var(--muted);font-size:11px;font-weight:900
-    }
-    .chip.active{background:var(--navy);color:#fff;border-color:var(--navy)}
-    .program{
-      padding:14px;background:var(--paper);border:1px solid var(--line);
-      border-radius:18px
-    }
-    .program-top{display:grid;grid-template-columns:48px 1fr auto;gap:11px;align-items:start}
-    .program-icon{
-      width:48px;height:48px;border-radius:14px;background:#f5eee2;
-      display:grid;place-items:center;font-size:25px
-    }
-    .program h3{margin:1px 0 4px;font-size:16px}
-    .program small{color:var(--muted);font-weight:800;font-size:11px}
-    .program p{margin:10px 0 0;color:var(--muted);font-size:12px;line-height:1.55}
-    .badge{
-      display:inline-block;padding:5px 8px;border-radius:999px;background:#f1eee8;
-      color:#625b52;font-size:10px;font-weight:900
-    }
-    .badge.low{background:#edf8f2;color:#277458}
-    .badge.mid{background:#fff5dc;color:#976600}
-    .badge.high{background:#fff0ed;color:#b6473d}
-
-    .schedule-day{display:flex;gap:8px;margin-bottom:10px}
-    .day-btn{
-      flex:1;border:1px solid var(--line);background:var(--paper);padding:10px;border-radius:14px;
-      color:var(--muted);font-weight:900
-    }
-    .day-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
-    .event{display:grid;grid-template-columns:64px 1fr;gap:11px}
-    .event-time{font-size:12px;font-weight:1000;color:var(--muted);padding-top:12px;text-align:right}
-    .event-body{
-      border:1px solid var(--line);border-left:5px solid var(--blue);
-      background:var(--paper);border-radius:16px;padding:12px
-    }
-    .event-body.now{border-left-color:var(--yellow);background:#fffaf0}
-    .event-body h3{font-size:14px;margin:0 0 4px}
-    .event-body p{margin:0;color:var(--muted);font-size:11px;font-weight:800}
-
-    .bottom-nav{
-      position:fixed;left:50%;bottom:0;transform:translateX(-50%);
-      width:min(100%,760px);z-index:60;
-      min-height:var(--bottom);
-      padding:7px 8px calc(7px + env(safe-area-inset-bottom));
-      display:grid;grid-template-columns:repeat(5,1fr);
-      background:rgba(255,253,248,.95);backdrop-filter:blur(18px);
-      border-top:1px solid var(--line);box-shadow:0 -8px 24px rgba(0,0,0,.06)
-    }
-    .nav-btn{
-      border:0;background:transparent;border-radius:14px;color:#898578;
-      padding:6px 2px;font-size:9px;font-weight:900
-    }
-    .nav-btn span{display:block;font-size:21px;margin-bottom:3px}
-    .nav-btn.active{background:#f0eadf;color:var(--navy)}
-
-    dialog{
-      width:min(calc(100% - 26px),540px);border:0;border-radius:25px;padding:0;
-      box-shadow:0 28px 80px rgba(0,0,0,.28)
-    }
-    dialog::backdrop{background:rgba(18,25,39,.48);backdrop-filter:blur(4px)}
-    .dialog-body{padding:21px}
-    .dialog-body h2{margin:0 0 8px}
-    .dialog-body p{color:var(--muted);line-height:1.6;font-size:13px}
-    .google-btn,.primary,.ghost{
-      width:100%;border-radius:14px;padding:12px 13px;font-weight:900
-    }
-    .google-btn,.ghost{border:1px solid var(--line);background:white;color:var(--ink)}
-    .primary{border:0;background:var(--navy);color:white}
-    .status{
-      margin-top:10px;padding:11px 12px;border-radius:13px;background:#f1f2f4;
-      color:var(--muted);font-size:12px;font-weight:800;line-height:1.5
-    }
-    .status.bad{background:#fff0ed;color:#b83d34}
-    .admin-shell{display:none}
-    .admin-shell.show{display:block}
-    .admin-head{
-      border-radius:24px;padding:19px;color:#fff;
-      background:linear-gradient(135deg,#152a4a,#344b70);box-shadow:var(--shadow)
-    }
-    .admin-head small{font-size:10px;letter-spacing:.15em;font-weight:900;color:#f4d993}
-    .admin-head h2{margin:5px 0}
-    .admin-head p{margin:0;font-size:12px;opacity:.8}
-    .profile{display:flex;gap:11px;align-items:center;margin-top:14px}
-    .avatar{width:42px;height:42px;border-radius:50%;background:#fff;color:#152a4a;display:grid;place-items:center;font-weight:1000}
-    .role{display:inline-block;margin-top:5px;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.14);font-size:10px;font-weight:900}
-    .admin-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-    .admin-card{padding:15px;background:var(--paper);border:1px solid var(--line);border-radius:18px}
-    .admin-card .icon{font-size:25px}
-    .admin-card b{display:block;margin-top:8px;font-size:14px}
-    .admin-card small{display:block;color:var(--muted);margin-top:3px;font-size:10px;font-weight:800}
-
-    .toast{
-      position:fixed;left:50%;bottom:calc(var(--bottom) + 14px);transform:translate(-50%,14px);
-      width:min(calc(100% - 28px),520px);z-index:100;background:#172033;color:#fff;
-      padding:11px 13px;border-radius:13px;opacity:0;pointer-events:none;transition:.2s;font-size:12px;font-weight:800
-    }
-    .toast.show{opacity:1;transform:translate(-50%,0)}
-
-    @media(min-width:640px){
-      .quick-grid{grid-template-columns:repeat(4,1fr)}
-    }
-  </style>
+<script type="importmap">
+{
+  "imports":{
+    "three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+    "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+  }
+}
+</script>
 </head>
 <body>
-<div class="app">
-  <header class="topbar">
-    <div class="topbar-inner">
-      <div class="brand">
-        <small>MASHIKO HOSEI HIGH SCHOOL</small>
-        <h1>文化祭 2026</h1>
-      </div>
-      <button class="teacher-btn" id="teacherOpen">教員ログイン</button>
+<div id="app">
+  <div id="scene"></div>
+
+  <div class="topbar">
+    <div class="titlebox">
+      <small>MASHIKO HOSEI FESTIVAL 2026</small>
+      <strong>3D 校内マップ</strong>
     </div>
-  </header>
+    <button class="reset" id="resetBtn" aria-label="視点を戻す">↺</button>
+  </div>
 
-  <main>
-    <section class="view active" id="homeView">
-      <div class="hero">
-        <div class="kicker">MASHIKO HOSEI FESTIVAL 2026</div>
-        <h2>見つける。巡る。<br>文化祭を遊び尽くす。</h2>
-        <p>企画・マップ・ステージ予定・お知らせを、ひとつのアプリに。</p>
-        <div class="hero-tags"><span>入場無料</span><span>校内マップ</span><span>リアルタイム案内</span></div>
+  <div class="legend">
+    <span><i class="dot class"></i>普通教室</span>
+    <span><i class="dot special"></i>特別教室</span>
+    <span><i class="dot wc"></i>トイレ</span>
+  </div>
+
+  <div class="floor-tabs">
+    <button class="floor-btn active" data-floor="all">全体</button>
+    <button class="floor-btn" data-floor="3">3F</button>
+    <button class="floor-btn" data-floor="2">2F</button>
+    <button class="floor-btn" data-floor="1">1F</button>
+  </div>
+
+  <div class="help">
+    <b>ドラッグ</b> 回転　／　<b>2本指</b> 移動・ズーム<br>
+    教室をタップすると詳細を表示
+  </div>
+
+  <div class="orientation">手前＝東　←　→　奥＝西</div>
+
+  <div class="sheet" id="sheet">
+    <div class="sheet-inner">
+      <div class="handle"></div>
+      <div class="sheet-head">
+        <div>
+          <div class="room-kicker" id="roomKicker">1F・CLASSROOM</div>
+          <h2 id="roomName">3-2</h2>
+          <div class="sub" id="roomLocation">教室棟 1階</div>
+        </div>
+        <button class="close" id="closeSheet">×</button>
       </div>
-
-      <div class="section-head"><h2>ただいま開催中</h2><span>仮データ</span></div>
-      <div class="now-card">
-        <div class="now-top"><span class="live"><i></i>NOW PLAYING</span><span class="time-chip">10:30〜11:00</span></div>
-        <h3>音楽部スペシャルライブ</h3>
-        <div class="meta"><span>📍 体育館</span><span>👥 やや混雑</span></div>
-      </div>
-
-      <div class="section-head"><h2>文化祭を探す</h2><span>4 MENU</span></div>
-      <div class="quick-grid">
-        <button class="quick" data-go="map"><span class="icon">🏫</span><b>校内マップ</b><small>場所から探す</small></button>
-        <button class="quick" data-go="programs"><span class="icon">🎪</span><b>企画一覧</b><small>出し物から探す</small></button>
-        <button class="quick" data-go="schedule"><span class="icon">🕒</span><b>予定</b><small>時間から探す</small></button>
-        <button class="quick" data-go="info"><span class="icon">📢</span><b>お知らせ</b><small>運営情報</small></button>
-      </div>
-
-      <div class="section-head"><h2>お知らせ</h2><span>最新</span></div>
-      <div class="notice-list" id="homeNotices"></div>
-    </section>
-
-
-    <section class="view" id="mapView">
-      <div class="section-head"><h2>校内マップ</h2><span>教室棟のみ</span></div>
-      <div class="floor-filter">
-        <button class="filter-btn" data-floor="3">3F</button>
-        <button class="filter-btn" data-floor="2">2F</button>
-        <button class="filter-btn active" data-floor="1">1F</button>
-      </div>
-      <div class="map-wrap">
-        <div class="map-stage">
-          <div class="map-title-note">3つの階を重ねて表示しています</div>
-          <div class="west-label">奥：西側 →</div>
-          <svg class="floor-svg" id="floorSvg" viewBox="0 0 760 560" aria-label="教室棟 1階から3階の斜め校内マップ">
-            <defs>
-              <filter id="floorGlow" x="-40%" y="-40%" width="180%" height="180%">
-                <feGaussianBlur stdDeviation="4.8" result="blur"/>
-                <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.20  0 0 0 0 0.55  0 0 0 0 1  0 0 0 .72 0" result="glow"/>
-                <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
-              </filter>
-            </defs>
-            <g id="svgFloors"></g>
-          </svg>
-          <div class="east-label">← 手前：東側</div>
+      <div class="program">
+        <strong id="programTitle">企画情報はまだ未登録です</strong>
+        <p id="programDesc">管理画面から企画名・紹介文・開催時間などを登録すると、ここに表示される想定です。</p>
+        <div class="badges">
+          <span class="badge" id="programTime">9:30〜15:00</span>
+          <span class="badge crowd" id="programCrowd">混雑：未設定</span>
         </div>
       </div>
-      <div class="map-room-info" id="mapRoomInfo">
-        <div><strong>1Fを選択中</strong><small>教室をタップすると部屋名を確認できます。</small></div>
-        <span class="pill">MAP</span>
-      </div>
-      <p class="map-hint">校舎平面図のうち、1-1・2-1・3-1などが並ぶ教室棟だけを抜き出した表示。北側の棟は表示していません。</p>
-    </section>
-
-    <section class="view" id="programsView">
-      <div class="section-head"><h2>企画一覧</h2><span id="programCount">0件</span></div>
-      <input class="search" id="programSearch" placeholder="企画名・団体名・場所で検索">
-      <div class="chips" id="programChips"></div>
-      <div class="program-list" id="programList"></div>
-    </section>
-
-    <section class="view" id="scheduleView">
-      <div class="section-head"><h2>ステージ予定</h2><span>仮データ</span></div>
-      <div class="schedule-day">
-        <button class="day-btn active" data-day="day1">1日目</button>
-        <button class="day-btn" data-day="day2">2日目</button>
-      </div>
-      <div class="timeline" id="timeline"></div>
-    </section>
-
-    <section class="view" id="infoView">
-      <div class="section-head"><h2>運営からのお知らせ</h2><span>仮データ</span></div>
-      <div class="notice-list" id="allNotices"></div>
-    </section>
-
-    <section class="view" id="adminView">
-      <div id="adminLoggedOut">
-        <div class="section-head"><h2>教員管理</h2><span>Google認証</span></div>
-        <div class="card" style="padding:16px">
-          <h3 style="margin:0 0 7px">教員アカウントでログイン</h3>
-          <p style="color:var(--muted);font-size:12px;line-height:1.6">Firebaseの allowedUsers に登録されたGoogleアカウントのみ利用できます。</p>
-          <button class="google-btn" id="googleLogin">Googleでログイン</button>
-          <div class="status" id="loginStatus">未ログインです。</div>
-        </div>
-      </div>
-
-      <div class="admin-shell" id="adminLoggedIn">
-        <div class="admin-head">
-          <small>FESTIVAL MANAGEMENT</small>
-          <h2>教員管理画面</h2>
-          <p>公開側の情報管理はここに増やしていく。</p>
-          <div class="profile">
-            <div class="avatar" id="avatar">管</div>
-            <div>
-              <strong id="adminName">---</strong>
-              <div id="adminEmail" style="font-size:11px;opacity:.74;margin-top:2px"></div>
-              <span class="role" id="adminRole">---</span>
-            </div>
-          </div>
-          <button class="ghost" id="logoutBtn" style="margin-top:13px">ログアウト</button>
-        </div>
-
-        <div class="section-head"><h2>管理メニュー</h2><span>順次実装</span></div>
-        <div class="admin-cards">
-          <div class="admin-card"><span class="icon">📢</span><b>お知らせ</b><small>投稿・編集・削除</small></div>
-          <div class="admin-card"><span class="icon">🎪</span><b>企画</b><small>企画情報・混雑状況</small></div>
-          <div class="admin-card"><span class="icon">🕒</span><b>ステージ</b><small>時間・進行状況</small></div>
-          <div class="admin-card"><span class="icon">👥</span><b>教員</b><small>権限・利用許可</small></div>
-        </div>
-      </div>
-    </section>
-  </main>
+    </div>
+  </div>
 </div>
 
-<nav class="bottom-nav">
-  <button class="nav-btn active" data-view="home"><span>🏠</span>ホーム</button>
-  <button class="nav-btn" data-view="map"><span>🏫</span>マップ</button>
-  <button class="nav-btn" data-view="programs"><span>🎪</span>企画</button>
-  <button class="nav-btn" data-view="schedule"><span>🕒</span>予定</button>
-  <button class="nav-btn" data-view="info"><span>📢</span>案内</button>
-</nav>
-
-<dialog id="loginDialog">
-  <div class="dialog-body">
-    <h2>教員ログイン</h2>
-    <p>文化祭の管理機能を利用する教員向けです。登録されていないGoogleアカウントでは管理画面に入れません。</p>
-    <button class="google-btn" id="dialogGoogleLogin">Googleでログイン</button>
-    <div class="status" id="dialogStatus">未ログインです。</div>
-    <button class="ghost" id="dialogClose" style="margin-top:9px">閉じる</button>
-  </div>
-</dialog>
-
-<div class="toast" id="toast"></div>
-
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCUpFA2q9x1B3_bn5o3sNvXsb_gkELhmAk",
-    authDomain: "mashihosai2026.firebaseapp.com",
-    projectId: "mashihosai2026",
-    storageBucket: "mashihosai2026.firebasestorage.app",
-    messagingSenderId: "606003666571",
-    appId: "1:606003666571:web:d955b46c24e1d81c1d3e8e",
-    measurementId: "G-CJKWMPBHRT"
-  };
+const host = document.getElementById('scene');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xeef3f8);
+scene.fog = new THREE.Fog(0xeef3f8, 28, 55);
 
-  const firebaseApp=initializeApp(firebaseConfig);
-  const auth=getAuth(firebaseApp);
-  const db=getFirestore(firebaseApp);
-  const provider=new GoogleAuthProvider();
-  provider.setCustomParameters({prompt:"select_account"});
-  setPersistence(auth,browserLocalPersistence).catch(console.error);
+const camera = new THREE.PerspectiveCamera(42, innerWidth/innerHeight, 0.1, 100);
+camera.position.set(-11.5, 10.5, 15.5);
 
-  const $=s=>document.querySelector(s);
-  const $$=s=>[...document.querySelectorAll(s)];
-  let allowedUser=null;
-  let programCategory="すべて";
-  let currentDay="day1";
+const renderer = new THREE.WebGLRenderer({antialias:true, alpha:false});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+host.appendChild(renderer.domElement);
 
-  const notices=[
-    {important:true,title:"文化祭アプリ制作中",text:"現在は仮データで表示しています。正式な企画・校内図に順次差し替えます。"},
-    {important:false,title:"体育館ステージについて",text:"ステージ開始時刻は進行状況により前後する場合があります。"},
-    {important:false,title:"校内では走らないでください",text:"階段・廊下では安全のため歩いて移動してください。"}
-  ];
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = .07;
+controls.target.set(2.5, 3.2, 0);
+controls.minDistance = 8;
+controls.maxDistance = 34;
+controls.maxPolarAngle = Math.PI * .49;
+controls.minPolarAngle = Math.PI * .16;
+controls.panSpeed = .75;
+controls.rotateSpeed = .65;
+controls.zoomSpeed = .8;
 
-  const programs=[
-    {name:"音楽部スペシャルライブ",group:"音楽部",place:"体育館",cat:"ステージ",icon:"🎸",crowd:"mid",desc:"文化祭限定ライブ。途中入退場OK。"},
-    {name:"レトロ喫茶フォトスポット",group:"2年1組",place:"2-1",cat:"体験",icon:"☕",crowd:"high",desc:"レトロな教室で写真撮影を楽しめます。"},
-    {name:"科学実験ショー",group:"科学部",place:"化学室",cat:"展示",icon:"🧪",crowd:"low",desc:"身近な科学を使った実験を紹介します。"},
-    {name:"光と影のアート展示",group:"美術部",place:"美術室",cat:"展示",icon:"🎨",crowd:"low",desc:"作品と照明を組み合わせた展示。"},
-    {name:"文化祭ミニゲーム",group:"3年2組",place:"3-2",cat:"体験",icon:"🎲",crowd:"mid",desc:"短時間で遊べるゲーム企画。"},
-    {name:"ダンスパフォーマンス",group:"有志",place:"中庭",cat:"ステージ",icon:"💃",crowd:"mid",desc:"有志メンバーによるダンスステージ。"}
-  ];
+const hemi = new THREE.HemisphereLight(0xffffff,0x93a1b5,2.25);
+scene.add(hemi);
+const sun = new THREE.DirectionalLight(0xffffff,3.0);
+sun.position.set(-8,15,10);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048,2048);
+sun.shadow.camera.left=-20; sun.shadow.camera.right=20;
+sun.shadow.camera.top=20; sun.shadow.camera.bottom=-20;
+scene.add(sun);
 
-  const schedules={
-    day1:[
-      {time:"09:30",title:"開会セレモニー",place:"体育館"},
-      {time:"10:30",title:"音楽部スペシャルライブ",place:"体育館",now:true},
-      {time:"11:20",title:"ダンスパフォーマンス",place:"中庭"},
-      {time:"12:30",title:"吹奏楽部ステージ",place:"体育館"},
-      {time:"14:00",title:"クラス対抗イベント",place:"体育館"}
-    ],
-    day2:[
-      {time:"09:45",title:"演劇部公演",place:"体育館"},
-      {time:"11:00",title:"有志ライブ",place:"中庭"},
-      {time:"12:30",title:"ダンス部公演",place:"体育館"},
-      {time:"14:30",title:"閉会セレモニー",place:"体育館"}
-    ]
-  };
+const fill = new THREE.DirectionalLight(0xb8d6ff,1.1);
+fill.position.set(12,6,-10);
+scene.add(fill);
 
-  function go(view){
-    $$(".view").forEach(v=>v.classList.toggle("active",v.id===view+"View"));
-    $$(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
-    window.scrollTo({top:0,behavior:"smooth"});
-  }
-  $$(".nav-btn").forEach(b=>b.onclick=()=>go(b.dataset.view));
-  $$("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
+// Ground
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(42,28),
+  new THREE.MeshStandardMaterial({color:0xe7ecef,roughness:1})
+);
+ground.rotation.x = -Math.PI/2;
+ground.position.y = -0.12;
+ground.receiveShadow = true;
+scene.add(ground);
 
-  function renderNotices(){
-    const html=notices.map(n=>`<div class="notice ${n.important?"important":""}"><strong>${n.important?"⚠️ ":""}${n.title}</strong><p>${n.text}</p></div>`).join("");
-    $("#allNotices").innerHTML=html;
-    $("#homeNotices").innerHTML=notices.slice(0,2).map(n=>`<div class="notice ${n.important?"important":""}"><strong>${n.important?"⚠️ ":""}${n.title}</strong><p>${n.text}</p></div>`).join("");
-  }
+// subtle paths
+function pathStrip(x,z,w,d,rot=0){
+  const m=new THREE.Mesh(
+    new THREE.PlaneGeometry(w,d),
+    new THREE.MeshStandardMaterial({color:0xd6dce2,roughness:1})
+  );
+  m.rotation.x=-Math.PI/2; m.rotation.z=rot; m.position.set(x,-.1,z);
+  scene.add(m);
+}
+pathStrip(4.0,4.4,22,1.5,-.05);
+pathStrip(-3.5,-4.2,12,1.2,.12);
 
-  function crowd(c){return c==="low"?"空いている":c==="mid"?"やや混雑":"混雑";}
-  function renderProgramChips(){
-    const cats=["すべて","ステージ","体験","展示"];
-    $("#programChips").innerHTML=cats.map(c=>`<button class="chip ${c===programCategory?"active":""}" data-cat="${c}">${c}</button>`).join("");
-    $$("[data-cat]").forEach(b=>b.onclick=()=>{programCategory=b.dataset.cat;renderProgramChips();renderPrograms();});
-  }
-  function renderPrograms(){
-    const q=$("#programSearch").value.trim().toLowerCase();
-    const list=programs.filter(p=>{
-      const category=programCategory==="すべて"||p.cat===programCategory;
-      const text=`${p.name} ${p.group} ${p.place}`.toLowerCase().includes(q);
-      return category&&text;
+// simple trees for theme-park-map vibe
+function addTree(x,z,s=1){
+  const trunk = new THREE.Mesh(
+    new THREE.CylinderGeometry(.09*s,.12*s,.65*s,8),
+    new THREE.MeshStandardMaterial({color:0x8b7255,roughness:1})
+  );
+  trunk.position.set(x,.25*s,z); trunk.castShadow=true;
+  const crown = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(.48*s,1),
+    new THREE.MeshStandardMaterial({color:0x7ab58a,roughness:.9})
+  );
+  crown.position.set(x,.78*s,z); crown.castShadow=true;
+  scene.add(trunk,crown);
+}
+[[-8,4],[-6,5.2],[10,5.3],[12,3.5],[-7,-5],[9,-4.8],[12,-3.4],[-10,-2.8]].forEach((p,i)=>addTree(p[0],p[1],.9+(i%3)*.12));
+
+// Data: user's east -> west order
+const floors = {
+  1: [
+    {name:'地歴室',type:'special',w:2.15},
+    {name:'女子トイレ',type:'wc',w:1.25},
+    {name:'3-4',type:'class',w:1.72},
+    {name:'3-3',type:'class',w:1.72},
+    {name:'3-2',type:'class',w:1.72},
+    {name:'3-1',type:'class',w:1.72},
+    {name:'男子トイレ',type:'wc',w:1.25}
+  ],
+  2: [
+    {name:'美術室',type:'special',w:2.15},
+    {name:'男子トイレ',type:'wc',w:1.25},
+    {name:'2-4',type:'class',w:1.72},
+    {name:'2-3',type:'class',w:1.72},
+    {name:'2-2',type:'class',w:1.72},
+    {name:'2-1',type:'class',w:1.72},
+    {name:'女子トイレ',type:'wc',w:1.25}
+  ],
+  3: [
+    {name:'視聴覚室',type:'special',w:2.15},
+    {name:'女子トイレ',type:'wc',w:1.25},
+    {name:'1-4',type:'class',w:1.72},
+    {name:'1-3',type:'class',w:1.72},
+    {name:'1-2',type:'class',w:1.72},
+    {name:'1-1',type:'class',w:1.72},
+    {name:'男子トイレ',type:'wc',w:1.25}
+  ]
+};
+
+const info = {
+  '3-2': {title:'3年2組「文化祭ミニゲーム」',desc:'友達同士で気軽に遊べるミニゲーム企画です。',time:'9:30〜15:00',crowd:'やや混雑'},
+  '2-1': {title:'2年1組「レトロ喫茶」',desc:'レトロな空間で写真撮影を楽しめる教室企画です。',time:'9:30〜15:00',crowd:'混雑'},
+  '美術室': {title:'美術部 展示',desc:'美術部員の作品を展示しています。',time:'9:30〜15:00',crowd:'空いている'},
+  '視聴覚室': {title:'映像企画',desc:'視聴覚室を使った映像コンテンツを予定しています。',time:'10:00〜14:30',crowd:'未設定'}
+};
+
+const building = new THREE.Group();
+building.rotation.y = THREE.MathUtils.degToRad(-9);
+scene.add(building);
+
+const roomMeshes = [];
+const floorGroups = {};
+const floorHeight = 2.15;
+const roomDepth = 3.15;
+const wallH = .72;
+const slabH = .18;
+const corridorDepth = .95;
+const totalW = 12.53;
+
+const colors = {
+  class: 0x76aef7,
+  special: 0x7ac9ae,
+  wc: 0xe9a5b3
+};
+
+function makeTextSprite(text, size=46){
+  const canvas=document.createElement('canvas');
+  const ctx=canvas.getContext('2d');
+  const scale=2;
+  canvas.width=420*scale; canvas.height=110*scale;
+  ctx.scale(scale,scale);
+  ctx.font=`900 ${size}px -apple-system,BlinkMacSystemFont,"Yu Gothic",sans-serif`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle='rgba(255,255,255,.96)';
+  ctx.strokeStyle='rgba(20,35,55,.22)'; ctx.lineWidth=7;
+  ctx.strokeText(text,210,55);
+  ctx.fillStyle='#18263a';
+  ctx.fillText(text,210,55);
+  const tex=new THREE.CanvasTexture(canvas);
+  tex.colorSpace=THREE.SRGBColorSpace;
+  const mat=new THREE.SpriteMaterial({map:tex,transparent:true,depthWrite:false});
+  const spr=new THREE.Sprite(mat);
+  spr.scale.set(2.6,.68,1);
+  return spr;
+}
+
+function makeFloor(floorNum){
+  const y=(floorNum-1)*floorHeight;
+  const group=new THREE.Group();
+  group.userData.floor=floorNum;
+  floorGroups[floorNum]=group;
+  building.add(group);
+
+  // main slab
+  const slabMat=new THREE.MeshStandardMaterial({
+    color:0xf5f7fa,roughness:.76,metalness:0,
+    transparent:true,opacity:1
+  });
+  const slab=new THREE.Mesh(new THREE.BoxGeometry(totalW+.35,slabH,roomDepth+corridorDepth+.4),slabMat);
+  slab.position.set(totalW/2, y, 0);
+  slab.castShadow=true; slab.receiveShadow=true;
+  group.add(slab);
+
+  // corridor strip (south/front side)
+  const corridor=new THREE.Mesh(
+    new THREE.BoxGeometry(totalW,.08,corridorDepth),
+    new THREE.MeshStandardMaterial({color:0xe7ebef,roughness:.95,transparent:true,opacity:1})
+  );
+  corridor.position.set(totalW/2,y+.13,roomDepth/2+corridorDepth/2-.03);
+  corridor.receiveShadow=true;
+  group.add(corridor);
+
+  let x=0;
+  floors[floorNum].forEach((r)=>{
+    const baseColor=colors[r.type];
+    const mat=new THREE.MeshStandardMaterial({
+      color:baseColor,roughness:.62,metalness:0,
+      transparent:true,opacity:.90,
+      emissive:baseColor,emissiveIntensity:.04
     });
-    $("#programCount").textContent=`${list.length}件`;
-    $("#programList").innerHTML=list.map(p=>`
-      <div class="program">
-        <div class="program-top">
-          <div class="program-icon">${p.icon}</div>
-          <div><small>${p.group}</small><h3>${p.name}</h3><small>📍 ${p.place}</small></div>
-          <span class="badge ${p.crowd}">${crowd(p.crowd)}</span>
-        </div>
-        <p>${p.desc}</p>
-      </div>`).join("");
-  }
-  $("#programSearch").oninput=renderPrograms;
 
-  function renderSchedule(){
-    $("#timeline").innerHTML=schedules[currentDay].map(e=>`
-      <div class="event">
-        <div class="event-time">${e.time}</div>
-        <div class="event-body ${e.now?"now":""}">
-          <h3>${e.title}</h3><p>📍 ${e.place}${e.now?"　● 開催中":""}</p>
-        </div>
-      </div>`).join("");
-  }
-  $$(".day-btn").forEach(b=>b.onclick=()=>{
-    currentDay=b.dataset.day;
-    $$(".day-btn").forEach(x=>x.classList.toggle("active",x===b));
-    renderSchedule();
+    // low extruded room block
+    const mesh=new THREE.Mesh(new THREE.BoxGeometry(r.w-.07,wallH,roomDepth-.08),mat);
+    mesh.position.set(x+r.w/2,y+slabH/2+wallH/2+.02,0);
+    mesh.castShadow=true; mesh.receiveShadow=true;
+    mesh.userData={floor:floorNum,name:r.name,type:r.type,baseColor};
+    group.add(mesh);
+    roomMeshes.push(mesh);
+
+    // roof/open top rim, gives stronger 3D outline
+    const edges=new THREE.LineSegments(
+      new THREE.EdgesGeometry(new THREE.BoxGeometry(r.w-.07,wallH,roomDepth-.08)),
+      new THREE.LineBasicMaterial({color:0x24405f,transparent:true,opacity:.24})
+    );
+    edges.position.copy(mesh.position);
+    edges.userData.helperFor=mesh;
+    group.add(edges);
+    mesh.userData.edges=edges;
+
+    const label=makeTextSprite(r.name, r.name.length>=5 ? 32 : 45);
+    label.position.set(mesh.position.x,y+wallH+0.55,0);
+    label.userData.helperFor=mesh;
+    group.add(label);
+    mesh.userData.label=label;
+
+    x+=r.w;
   });
 
+  // floor number marker at east end
+  const floorLabel=makeTextSprite(`${floorNum}F`,52);
+  floorLabel.scale.set(1.45,.65,1);
+  floorLabel.position.set(-.72,y+1.0,1.0);
+  group.add(floorLabel);
+  floorLabel.userData.floorLabel=true;
 
+  // vertical core at east end; just visual mass to avoid "flat boards"
+  const core=new THREE.Mesh(
+    new THREE.BoxGeometry(1.05,1.55,roomDepth+corridorDepth-.05),
+    new THREE.MeshStandardMaterial({color:0xd9e0e8,roughness:.83,transparent:true,opacity:.96})
+  );
+  core.position.set(-.58,y+.82,0.25);
+  core.castShadow=true; core.receiveShadow=true;
+  group.add(core);
+}
+makeFloor(1);makeFloor(2);makeFloor(3);
 
-  const floorPlans = {
-    3: [
-      {name:"視聴覚教室",w:1.36},{name:"機械室",w:.58},{name:"階段",w:.62,type:"stairs"},{name:"WC 女",w:.72},
-      {name:"3階 学習室",w:1.18},{name:"1-3",w:1.18},{name:"1-2",w:1.18},{name:"1-1",w:1.18},
-      {name:"階段",w:.62,type:"stairs"},{name:"WC 男",w:.72}
-    ],
-    2: [
-      {name:"美術室",w:1.42},{name:"美術準備室",w:.63},{name:"階段",w:.62,type:"stairs"},{name:"WC 男",w:.72},
-      {name:"2階 学習室",w:1.18},{name:"2-3",w:1.18},{name:"2-2",w:1.18},{name:"2-1",w:1.18},
-      {name:"階段",w:.62,type:"stairs"},{name:"WC 女",w:.72}
-    ],
-    1: [
-      {name:"社会科教室",w:1.48},{name:"社会準備室",w:.66},{name:"階段",w:.62,type:"stairs"},{name:"WC 女",w:.72},
-      {name:"3-4",w:1.15},{name:"3-3",w:1.15},{name:"3-2",w:1.15},{name:"3-1",w:1.15},
-      {name:"階段",w:.62,type:"stairs"},{name:"WC 男",w:.72}
-    ]
-  };
-  let selectedMapFloor=1;
+// east-end vertical connection, gives whole building continuity
+const spine = new THREE.Mesh(
+  new THREE.BoxGeometry(.28, floorHeight*2+2.05, 4.0),
+  new THREE.MeshStandardMaterial({color:0xcbd4dd,roughness:.8,transparent:true,opacity:.6})
+);
+spine.position.set(-1.08,2.55,.25);
+spine.castShadow=true;
+building.add(spine);
 
-  function svgEl(tag,attrs={}){
-    const el=document.createElementNS("http://www.w3.org/2000/svg",tag);
-    Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,v));
-    return el;
-  }
+// under-shadow pads
+for(let f=1;f<=3;f++){
+  const y=(f-1)*floorHeight-.08;
+  const shadow=new THREE.Mesh(
+    new THREE.BoxGeometry(totalW+.7,.05,roomDepth+corridorDepth+.75),
+    new THREE.MeshBasicMaterial({color:0x6d7a87,transparent:true,opacity:.08})
+  );
+  shadow.position.set(totalW/2,y,-.12);
+  floorGroups[f].add(shadow);
+}
 
-  function mapPoint(start,end,t){
-    return {x:start.x+(end.x-start.x)*t,y:start.y+(end.y-start.y)*t};
-  }
+// Floor selection
+let selectedFloor='all';
+function setFloorMode(floor){
+  selectedFloor=floor;
+  document.querySelectorAll('.floor-btn').forEach(b=>b.classList.toggle('active',b.dataset.floor===String(floor)));
 
-  function splitRoomLabel(name){
-    if(name==="視聴覚教室") return ["視聴覚","教室"];
-    if(name==="美術準備室") return ["美術","準備室"];
-    if(name==="社会科教室") return ["社会科","教室"];
-    if(name==="社会準備室") return ["社会","準備室"];
-    if(name.includes("学習室")) return [name.split(" ")[0],"学習室"];
-    if(name.startsWith("WC")) return name.split(" ");
-    return [name];
-  }
+  roomMeshes.forEach(mesh=>{
+    const active = floor==='all' || mesh.userData.floor===Number(floor);
+    mesh.material.opacity = active ? .92 : .12;
+    mesh.material.emissiveIntensity = active && floor!=='all' ? .28 : .035;
+    mesh.userData.edges.material.opacity = active ? .30 : .045;
+    mesh.userData.label.material.opacity = active ? 1 : .12;
+  });
 
-  function drawFloor(floor,index){
-    const starts={1:{x:92,y:505},2:{x:92,y:360},3:{x:92,y:215}};
-    const start=starts[floor];
-    const end={x:650,y:start.y-170};
-    const depth={x:18,y:-44};
-    const g=svgEl("g",{class:`map-floor floor-${floor}`,"data-svg-floor":floor});
-    const plan=floorPlans[floor];
-    const total=plan.reduce((s,r)=>s+r.w,0);
-
-    const p0=start,p1=end,p2={x:end.x+depth.x,y:end.y+depth.y},p3={x:start.x+depth.x,y:start.y+depth.y};
-    g.appendChild(svgEl("polygon",{class:"floor-base",points:`${p0.x},${p0.y} ${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y}`}));
-
-    let acc=0;
-    plan.forEach((room,i)=>{
-      const t0=acc/total; acc+=room.w; const t1=acc/total;
-      const a=mapPoint(start,end,t0),b=mapPoint(start,end,t1);
-      const c={x:b.x+depth.x,y:b.y+depth.y},d={x:a.x+depth.x,y:a.y+depth.y};
-      const rg=svgEl("g",{class:"room-hit","data-room-floor":floor,"data-room-name":room.name});
-      rg.appendChild(svgEl("polygon",{class:"room-shape",points:`${a.x},${a.y} ${b.x},${b.y} ${c.x},${c.y} ${d.x},${d.y}`}));
-      const cx=(a.x+b.x+c.x+d.x)/4,cy=(a.y+b.y+c.y+d.y)/4;
-      const lines=splitRoomLabel(room.name);
-      const label=svgEl("text",{class:`room-label ${room.w<.7?"tiny":room.w<.95?"small":""}`,x:cx,y:cy,transform:`rotate(-17 ${cx} ${cy})`});
-      lines.forEach((line,j)=>{
-        const t=svgEl("tspan",{x:cx,dy:j===0?`${-(lines.length-1)*5}px`:"11px"});
-        t.textContent=line; label.appendChild(t);
-      });
-      rg.appendChild(label);
-      rg.addEventListener("click",e=>{
-        e.stopPropagation();
-        selectMapFloor(floor);
-        $("#mapRoomInfo").innerHTML=`<div><strong>${floor}F｜${room.name}</strong><small>ここに文化祭当日の企画名・混雑状況などを表示できるようにします。</small></div><span class="pill">ROOM</span>`;
-      });
-      g.appendChild(rg);
-    });
-
-    const labelPos={x:start.x-5,y:start.y-58};
-    const fn=svgEl("text",{class:"floor-name",x:labelPos.x,y:labelPos.y,transform:`rotate(-17 ${labelPos.x} ${labelPos.y})`});
-    fn.textContent=`${floor}F`;
-    g.appendChild(fn);
-    g.addEventListener("click",()=>selectMapFloor(floor));
-    $("#svgFloors").appendChild(g);
-  }
-
-  function selectMapFloor(floor){
-    selectedMapFloor=Number(floor);
-    $$('[data-floor]').forEach(b=>b.classList.toggle('active',Number(b.dataset.floor)===selectedMapFloor));
-    $$('[data-svg-floor]').forEach(g=>{
-      const active=Number(g.dataset.svgFloor)===selectedMapFloor;
-      g.classList.toggle('active',active);
-      g.classList.toggle('inactive',!active);
-    });
-    $("#mapRoomInfo").innerHTML=`<div><strong>${selectedMapFloor}Fを選択中</strong><small>教室をタップすると部屋名を確認できます。</small></div><span class="pill">MAP</span>`;
-  }
-
-  [3,2,1].forEach((f,i)=>drawFloor(f,i));
-  $$('[data-floor]').forEach(b=>b.onclick=()=>selectMapFloor(b.dataset.floor));
-  selectMapFloor(1);
-
-
-  function toast(msg){
-    const t=$("#toast");t.textContent=msg;t.classList.add("show");
-    clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove("show"),2200);
-  }
-
-  $("#teacherOpen").onclick=()=>{
-    if(auth.currentUser&&allowedUser) go("admin");
-    else $("#loginDialog").showModal();
-  };
-  $("#dialogClose").onclick=()=>$("#loginDialog").close();
-
-  async function login(statusEl){
-    statusEl.className="status";
-    statusEl.textContent="Googleログインを開始しています…";
-    try{
-      await signInWithPopup(auth,provider);
-      if($("#loginDialog").open) $("#loginDialog").close();
-    }catch(e){
-      console.error(e);
-      statusEl.className="status bad";
-      statusEl.textContent="ログインに失敗しました：" + (e.code||e.message);
-    }
-  }
-  $("#googleLogin").onclick=()=>login($("#loginStatus"));
-  $("#dialogGoogleLogin").onclick=()=>login($("#dialogStatus"));
-  $("#logoutBtn").onclick=async()=>{await signOut(auth);go("home");toast("ログアウトしました");};
-
-  async function getAllowed(user){
-    const email=(user.email||"").toLowerCase();
-    if(!email)return null;
-    const snap=await getDoc(doc(db,"allowedUsers",email));
-    if(!snap.exists())return null;
-    const data=snap.data();
-    if(data.enabled!==true)return null;
-    return data;
-  }
-
-  onAuthStateChanged(auth,async user=>{
-    if(!user){
-      allowedUser=null;
-      $("#adminLoggedOut").style.display="block";
-      $("#adminLoggedIn").classList.remove("show");
-      $("#teacherOpen").textContent="教員ログイン";
-      return;
-    }
-    try{
-      const data=await getAllowed(user);
-      if(!data){
-        const mail=user.email||"このアカウント";
-        await signOut(auth);
-        $("#dialogStatus").className="status bad";
-        $("#dialogStatus").textContent=`${mail} は管理ユーザーとして登録されていません。`;
-        return;
+  Object.entries(floorGroups).forEach(([num,g])=>{
+    const active=floor==='all'||Number(num)===Number(floor);
+    g.children.forEach(obj=>{
+      if(obj.isMesh && !roomMeshes.includes(obj)){
+        if(obj.material?.transparent) obj.material.opacity=active ? (obj.userData.floorLabel?1:.95) : .14;
       }
-      allowedUser=data;
-      $("#adminLoggedOut").style.display="none";
-      $("#adminLoggedIn").classList.add("show");
-      $("#teacherOpen").textContent="管理画面";
-      $("#adminName").textContent=data.name||user.displayName||"教員";
-      $("#adminEmail").textContent=user.email||"";
-      $("#adminRole").textContent=data.role||"teacher";
-      $("#avatar").textContent=(data.name||user.displayName||"教").slice(0,1);
-      go("admin");
-    }catch(e){
-      console.error(e);
-      $("#loginStatus").className="status bad";
-      $("#loginStatus").textContent="権限確認に失敗しました。";
-    }
+      if(obj.isSprite && obj.userData.floorLabel) obj.material.opacity=active?1:.16;
+    });
   });
 
-  renderNotices();
-  renderProgramChips();
-  renderPrograms();
-  renderSchedule();
+  if(floor==='all'){
+    targetGoal.set(5.1,3.2,0);
+    cameraGoal.set(-11.5,10.5,15.5);
+  }else{
+    const y=(Number(floor)-1)*floorHeight + .75;
+    targetGoal.set(5.2,y,0);
+    cameraGoal.set(-7.6,y+5.1,11.8);
+  }
+}
+document.querySelectorAll('.floor-btn').forEach(b=>b.addEventListener('click',()=>setFloorMode(b.dataset.floor)));
+
+// Smooth view transitions
+const cameraGoal=camera.position.clone();
+const targetGoal=controls.target.clone();
+let transitioning=false;
+function nudgeTransition(){
+  transitioning=true;
+  setTimeout(()=>transitioning=false,900);
+}
+document.querySelectorAll('.floor-btn').forEach(b=>b.addEventListener('click',nudgeTransition));
+
+const homeCamera=new THREE.Vector3(-11.5,10.5,15.5);
+const homeTarget=new THREE.Vector3(2.5,3.2,0);
+document.getElementById('resetBtn').onclick=()=>{
+  selectedFloor='all';
+  setFloorMode('all');
+  cameraGoal.copy(homeCamera); targetGoal.copy(homeTarget);
+  transitioning=true; setTimeout(()=>transitioning=false,900);
+};
+
+// Picking
+const raycaster=new THREE.Raycaster();
+const pointer=new THREE.Vector2();
+let downX=0,downY=0;
+renderer.domElement.addEventListener('pointerdown',e=>{downX=e.clientX;downY=e.clientY;});
+renderer.domElement.addEventListener('pointerup',e=>{
+  if(Math.hypot(e.clientX-downX,e.clientY-downY)>8) return;
+  const rect=renderer.domElement.getBoundingClientRect();
+  pointer.x=((e.clientX-rect.left)/rect.width)*2-1;
+  pointer.y=-((e.clientY-rect.top)/rect.height)*2+1;
+  raycaster.setFromCamera(pointer,camera);
+  const hits=raycaster.intersectObjects(roomMeshes,false);
+  if(!hits.length) return;
+  const mesh=hits[0].object;
+  if(selectedFloor!=='all' && mesh.userData.floor!==Number(selectedFloor)) return;
+  openRoom(mesh);
+});
+
+let highlighted=null;
+function openRoom(mesh){
+  if(highlighted && highlighted!==mesh){
+    highlighted.material.emissiveIntensity = selectedFloor==='all' ? .035 : (highlighted.userData.floor===Number(selectedFloor)?.28:.035);
+    highlighted.scale.set(1,1,1);
+  }
+  highlighted=mesh;
+  mesh.material.emissiveIntensity=.62;
+  mesh.scale.set(1.025,1.15,1.025);
+
+  const {floor,name,type}=mesh.userData;
+  const d=info[name];
+  document.getElementById('roomKicker').textContent=`${floor}F・${type==='class'?'CLASSROOM':type==='wc'?'FACILITY':'SPECIAL ROOM'}`;
+  document.getElementById('roomName').textContent=name;
+  document.getElementById('roomLocation').textContent=`教室棟 ${floor}階`;
+  document.getElementById('programTitle').textContent=d?.title || '企画情報はまだ未登録です';
+  document.getElementById('programDesc').textContent=d?.desc || '管理画面から企画名・紹介文・開催時間などを登録すると、ここに表示される想定です。';
+  document.getElementById('programTime').textContent=d?.time || '時間：未設定';
+  document.getElementById('programCrowd').textContent=`混雑：${d?.crowd || '未設定'}`;
+  document.getElementById('sheet').classList.add('show');
+}
+document.getElementById('closeSheet').onclick=()=>{
+  document.getElementById('sheet').classList.remove('show');
+  if(highlighted){
+    highlighted.scale.set(1,1,1);
+    highlighted.material.emissiveIntensity = selectedFloor==='all' ? .035 : (highlighted.userData.floor===Number(selectedFloor)?.28:.035);
+    highlighted=null;
+  }
+};
+
+// hover cursor desktop
+renderer.domElement.addEventListener('pointermove',e=>{
+  if(e.pointerType==='touch') return;
+  const rect=renderer.domElement.getBoundingClientRect();
+  pointer.x=((e.clientX-rect.left)/rect.width)*2-1;
+  pointer.y=-((e.clientY-rect.top)/rect.height)*2+1;
+  raycaster.setFromCamera(pointer,camera);
+  const hits=raycaster.intersectObjects(roomMeshes,false);
+  const valid=hits.find(h=>selectedFloor==='all'||h.object.userData.floor===Number(selectedFloor));
+  renderer.domElement.style.cursor=valid?'pointer':'grab';
+});
+
+// initial slight model offset
+building.position.set(-2.6,0,-.15);
+
+function resize(){
+  camera.aspect=innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+}
+addEventListener('resize',resize);
+
+function animate(){
+  requestAnimationFrame(animate);
+  if(transitioning){
+    camera.position.lerp(cameraGoal,.075);
+    controls.target.lerp(targetGoal,.075);
+  }
+  controls.update();
+  renderer.render(scene,camera);
+}
+animate();
 </script>
 </body>
 </html>
