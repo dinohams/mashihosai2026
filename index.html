@@ -34,7 +34,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, collection, getDocs, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
-const firebaseConfig={apiKey:"AIzaSyCUpfA2q9x1B3_bn5o3sNvXshgkELhmAk",authDomain:"mashihosai2026.firebaseapp.com",projectId:"mashihosai2026",storageBucket:"mashihosai2026.firebasestorage.app",messagingSenderId:"606003666571",appId:"1:606003666571:web:d955b46c24e1d81c1d3e8e",measurementId:"G-CJKWMPBHRT"};
+const firebaseConfig={apiKey:"AIzaSyCUpFA2q9x1B3_bn5o3sNvXsb_gkELhmAk",authDomain:"mashihosai2026.firebaseapp.com",projectId:"mashihosai2026",storageBucket:"mashihosai2026.firebasestorage.app",messagingSenderId:"606003666571",appId:"1:606003666571:web:d955b46c24e1d81c1d3e8e",measurementId:"G-CJKWMPBHRT"};
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app),provider=new GoogleAuthProvider();provider.setCustomParameters({prompt:"select_account"});setPersistence(auth,browserLocalPersistence).catch(console.error);
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];let currentUserData=null;
 function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove("show"),2200)}
