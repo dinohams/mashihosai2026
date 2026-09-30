@@ -127,55 +127,112 @@
     .notice strong{display:block;font-size:14px;margin-bottom:4px}
     .notice p{margin:0;font-size:12px;line-height:1.6;color:var(--muted)}
 
+
     .map-wrap{
-      overflow:auto;padding:8px 0 2px;
+      overflow:auto;
+      padding:4px 0 4px;
       -webkit-overflow-scrolling:touch
     }
     .map-stage{
-      min-width:660px;height:430px;position:relative;margin:auto;
-      border-radius:25px;border:1px solid var(--line);
+      min-width:680px;
+      height:560px;
+      position:relative;
+      margin:auto;
+      border-radius:26px;
+      border:1px solid var(--line);
       background:
-        linear-gradient(160deg,#fdfcf8 0 45%,#ebe7dc 46% 100%);
-      box-shadow:var(--shadow);overflow:hidden
+        radial-gradient(circle at 20% 85%, rgba(246,196,83,.15), transparent 24%),
+        linear-gradient(160deg,#fffefa 0 54%,#eee9df 55% 100%);
+      box-shadow:var(--shadow);
+      overflow:hidden
     }
-    .school{
-      position:absolute;left:85px;top:76px;width:495px;height:286px;
-      transform:skewY(-17deg);
-      transform-origin:left top;
-      filter:drop-shadow(16px 18px 14px rgba(80,65,45,.12))
+    .map-stage:before{
+      content:"";
+      position:absolute;inset:0;
+      background-image:linear-gradient(rgba(21,42,74,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(21,42,74,.035) 1px,transparent 1px);
+      background-size:28px 28px;
+      pointer-events:none
     }
-    .floor{
-      height:88px;display:grid;grid-template-columns:1.35fr .8fr repeat(4,1fr) .8fr;
-      border:3px solid #303744;border-bottom-width:2px;background:#f9fbfd
+    .map-title-note{
+      position:absolute;left:17px;top:16px;z-index:2;
+      padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.9);
+      border:1px solid var(--line);font-size:11px;font-weight:900;color:var(--muted)
     }
-    .room{
-      position:relative;border-right:2px solid #7e8793;
-      display:flex;align-items:center;justify-content:center;
-      padding:5px;text-align:center;font-size:12px;font-weight:900;
-      background:#eef5ff;color:#183d77
+    .floor-svg{
+      display:block;width:760px;height:560px;position:relative;z-index:1
     }
-    .floor:nth-child(2) .room{background:#fff5e5;color:#a25c12}
-    .floor:nth-child(3) .room{background:#edf8ee;color:#39744f}
-    .room:last-child{border-right:0}
-    .school-end{
-      position:absolute;left:-63px;top:0;width:64px;height:264px;
-      background:#e9e4da;border:3px solid #303744;border-right:0;
-      transform:skewY(17deg)
+    .map-floor{
+      cursor:pointer;
+      transition:opacity .28s ease,filter .28s ease,transform .28s ease;
+      transform-box:fill-box;
+      transform-origin:center
     }
-    .east-label{
-      position:absolute;left:18px;bottom:16px;padding:7px 11px;border-radius:999px;
-      background:#fff;border:1px solid var(--line);font-size:11px;font-weight:900
+    .map-floor.inactive{
+      opacity:.24;
+      filter:grayscale(.72)
     }
+    .map-floor.active{
+      opacity:1;
+      filter:url(#floorGlow);
+      transform:translate(-5px,7px) scale(1.012)
+    }
+    .floor-base{stroke-width:3.2;stroke-linejoin:round}
+    .room-shape{stroke-width:1.8;stroke-linejoin:round;transition:filter .15s ease,opacity .15s ease}
+    .room-hit{cursor:pointer}
+    .room-hit:hover .room-shape{filter:brightness(1.08)}
+    .room-label{
+      pointer-events:none;
+      font-size:11px;
+      font-weight:900;
+      text-anchor:middle;
+      dominant-baseline:middle;
+      paint-order:stroke;
+      stroke:rgba(255,255,255,.82);
+      stroke-width:3px;
+      stroke-linejoin:round;
+      fill:#20304a
+    }
+    .room-label.small{font-size:9.5px}
+    .room-label.tiny{font-size:8.3px}
+    .floor-name{
+      font-size:23px;font-weight:1000;letter-spacing:.02em;
+      paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round
+    }
+    .floor-3 .floor-base{fill:#dff3ea;stroke:#3b8065}
+    .floor-3 .room-shape{fill:#effaf5;stroke:#74a98f}
+    .floor-3 .floor-name{fill:#2e785a}
+    .floor-2 .floor-base{fill:#fff0cf;stroke:#a96d17}
+    .floor-2 .room-shape{fill:#fff8e8;stroke:#d2a75e}
+    .floor-2 .floor-name{fill:#a56810}
+    .floor-1 .floor-base{fill:#e6efff;stroke:#3565b0}
+    .floor-1 .room-shape{fill:#f2f6ff;stroke:#7b9bcb}
+    .floor-1 .floor-name{fill:#285caa}
+    .east-label,.west-label{
+      position:absolute;z-index:3;padding:6px 10px;border-radius:999px;
+      background:rgba(255,255,255,.92);border:1px solid var(--line);
+      font-size:10px;font-weight:900;color:var(--navy)
+    }
+    .east-label{left:19px;bottom:16px}
+    .west-label{right:18px;top:16px}
     .map-hint{
-      font-size:12px;color:var(--muted);line-height:1.6;margin:10px 2px 0
+      font-size:12px;color:var(--muted);line-height:1.65;margin:10px 2px 0
     }
     .floor-filter{display:flex;gap:8px;overflow:auto;margin-bottom:10px}
     .filter-btn{
-      flex:0 0 auto;border:1px solid var(--line);background:var(--paper);
-      color:var(--muted);font-weight:900;font-size:12px;padding:9px 12px;border-radius:999px
+      flex:1 0 82px;border:1px solid var(--line);background:var(--paper);
+      color:var(--muted);font-weight:900;font-size:12px;padding:10px 12px;border-radius:999px;
+      transition:.2s ease
     }
-    .filter-btn.active{background:var(--navy);color:white;border-color:var(--navy)}
-    .dim{opacity:.22;filter:grayscale(.5)}
+    .filter-btn.active{background:var(--navy);color:white;border-color:var(--navy);box-shadow:0 6px 16px rgba(21,42,74,.18)}
+    .map-room-info{
+      margin-top:10px;padding:13px 14px;border:1px solid var(--line);border-radius:17px;
+      background:var(--paper);box-shadow:0 5px 14px rgba(35,28,18,.045);
+      display:flex;justify-content:space-between;gap:10px;align-items:center
+    }
+    .map-room-info strong{font-size:14px}
+    .map-room-info small{display:block;color:var(--muted);font-weight:800;margin-top:3px}
+    .map-room-info .pill{flex:0 0 auto;padding:6px 9px;border-radius:999px;background:#f2eee4;color:#5f584e;font-size:10px;font-weight:900}
+
 
     .search{
       width:100%;border:1px solid var(--line);background:var(--paper);
@@ -327,32 +384,36 @@
       <div class="notice-list" id="homeNotices"></div>
     </section>
 
+
     <section class="view" id="mapView">
-      <div class="section-head"><h2>校内マップ</h2><span>仮立体図</span></div>
+      <div class="section-head"><h2>校内マップ</h2><span>教室棟のみ</span></div>
       <div class="floor-filter">
-        <button class="filter-btn active" data-floor="all">全体</button>
         <button class="filter-btn" data-floor="3">3F</button>
         <button class="filter-btn" data-floor="2">2F</button>
-        <button class="filter-btn" data-floor="1">1F</button>
+        <button class="filter-btn active" data-floor="1">1F</button>
       </div>
       <div class="map-wrap">
         <div class="map-stage">
-          <div class="school" id="schoolMap">
-            <div class="school-end"></div>
-            <div class="floor" data-map-floor="3">
-              <div class="room">視聴覚室</div><div class="room">女子<br>トイレ</div><div class="room">1-4</div><div class="room">1-3</div><div class="room">1-2</div><div class="room">1-1</div><div class="room">男子<br>トイレ</div>
-            </div>
-            <div class="floor" data-map-floor="2">
-              <div class="room">美術室</div><div class="room">男子<br>トイレ</div><div class="room">2-4</div><div class="room">2-3</div><div class="room">2-2</div><div class="room">2-1</div><div class="room">女子<br>トイレ</div>
-            </div>
-            <div class="floor" data-map-floor="1">
-              <div class="room">地歴室</div><div class="room">女子<br>トイレ</div><div class="room">3-4</div><div class="room">3-3</div><div class="room">3-2</div><div class="room">3-1</div><div class="room">男子<br>トイレ</div>
-            </div>
-          </div>
-          <div class="east-label">← 手前：東側　／　奥：西側 →</div>
+          <div class="map-title-note">3つの階を重ねて表示しています</div>
+          <div class="west-label">奥：西側 →</div>
+          <svg class="floor-svg" id="floorSvg" viewBox="0 0 760 560" aria-label="教室棟 1階から3階の斜め校内マップ">
+            <defs>
+              <filter id="floorGlow" x="-40%" y="-40%" width="180%" height="180%">
+                <feGaussianBlur stdDeviation="4.8" result="blur"/>
+                <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.20  0 0 0 0 0.55  0 0 0 0 1  0 0 0 .72 0" result="glow"/>
+                <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+            <g id="svgFloors"></g>
+          </svg>
+          <div class="east-label">← 手前：東側</div>
         </div>
       </div>
-      <p class="map-hint">※今は構造確認用の仮図。正式な校舎図をもらったら、2棟・階段・渡り廊下・出入口まで正確に置き換える。</p>
+      <div class="map-room-info" id="mapRoomInfo">
+        <div><strong>1Fを選択中</strong><small>教室をタップすると部屋名を確認できます。</small></div>
+        <span class="pill">MAP</span>
+      </div>
+      <p class="map-hint">校舎平面図のうち、1-1・2-1・3-1などが並ぶ教室棟だけを抜き出した表示。北側の棟は表示していません。</p>
     </section>
 
     <section class="view" id="programsView">
@@ -549,11 +610,105 @@
     renderSchedule();
   });
 
-  $$("[data-floor]").forEach(b=>b.onclick=()=>{
-    const floor=b.dataset.floor;
-    $$("[data-floor]").forEach(x=>x.classList.toggle("active",x===b));
-    $$("[data-map-floor]").forEach(f=>f.classList.toggle("dim",floor!=="all"&&f.dataset.mapFloor!==floor));
-  });
+
+
+  const floorPlans = {
+    3: [
+      {name:"視聴覚教室",w:1.36},{name:"機械室",w:.58},{name:"階段",w:.62,type:"stairs"},{name:"WC 女",w:.72},
+      {name:"3階 学習室",w:1.18},{name:"1-3",w:1.18},{name:"1-2",w:1.18},{name:"1-1",w:1.18},
+      {name:"階段",w:.62,type:"stairs"},{name:"WC 男",w:.72}
+    ],
+    2: [
+      {name:"美術室",w:1.42},{name:"美術準備室",w:.63},{name:"階段",w:.62,type:"stairs"},{name:"WC 男",w:.72},
+      {name:"2階 学習室",w:1.18},{name:"2-3",w:1.18},{name:"2-2",w:1.18},{name:"2-1",w:1.18},
+      {name:"階段",w:.62,type:"stairs"},{name:"WC 女",w:.72}
+    ],
+    1: [
+      {name:"社会科教室",w:1.48},{name:"社会準備室",w:.66},{name:"階段",w:.62,type:"stairs"},{name:"WC 女",w:.72},
+      {name:"3-4",w:1.15},{name:"3-3",w:1.15},{name:"3-2",w:1.15},{name:"3-1",w:1.15},
+      {name:"階段",w:.62,type:"stairs"},{name:"WC 男",w:.72}
+    ]
+  };
+  let selectedMapFloor=1;
+
+  function svgEl(tag,attrs={}){
+    const el=document.createElementNS("http://www.w3.org/2000/svg",tag);
+    Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,v));
+    return el;
+  }
+
+  function mapPoint(start,end,t){
+    return {x:start.x+(end.x-start.x)*t,y:start.y+(end.y-start.y)*t};
+  }
+
+  function splitRoomLabel(name){
+    if(name==="視聴覚教室") return ["視聴覚","教室"];
+    if(name==="美術準備室") return ["美術","準備室"];
+    if(name==="社会科教室") return ["社会科","教室"];
+    if(name==="社会準備室") return ["社会","準備室"];
+    if(name.includes("学習室")) return [name.split(" ")[0],"学習室"];
+    if(name.startsWith("WC")) return name.split(" ");
+    return [name];
+  }
+
+  function drawFloor(floor,index){
+    const starts={1:{x:92,y:505},2:{x:92,y:360},3:{x:92,y:215}};
+    const start=starts[floor];
+    const end={x:650,y:start.y-170};
+    const depth={x:18,y:-44};
+    const g=svgEl("g",{class:`map-floor floor-${floor}`,"data-svg-floor":floor});
+    const plan=floorPlans[floor];
+    const total=plan.reduce((s,r)=>s+r.w,0);
+
+    const p0=start,p1=end,p2={x:end.x+depth.x,y:end.y+depth.y},p3={x:start.x+depth.x,y:start.y+depth.y};
+    g.appendChild(svgEl("polygon",{class:"floor-base",points:`${p0.x},${p0.y} ${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y}`}));
+
+    let acc=0;
+    plan.forEach((room,i)=>{
+      const t0=acc/total; acc+=room.w; const t1=acc/total;
+      const a=mapPoint(start,end,t0),b=mapPoint(start,end,t1);
+      const c={x:b.x+depth.x,y:b.y+depth.y},d={x:a.x+depth.x,y:a.y+depth.y};
+      const rg=svgEl("g",{class:"room-hit","data-room-floor":floor,"data-room-name":room.name});
+      rg.appendChild(svgEl("polygon",{class:"room-shape",points:`${a.x},${a.y} ${b.x},${b.y} ${c.x},${c.y} ${d.x},${d.y}`}));
+      const cx=(a.x+b.x+c.x+d.x)/4,cy=(a.y+b.y+c.y+d.y)/4;
+      const lines=splitRoomLabel(room.name);
+      const label=svgEl("text",{class:`room-label ${room.w<.7?"tiny":room.w<.95?"small":""}`,x:cx,y:cy,transform:`rotate(-17 ${cx} ${cy})`});
+      lines.forEach((line,j)=>{
+        const t=svgEl("tspan",{x:cx,dy:j===0?`${-(lines.length-1)*5}px`:"11px"});
+        t.textContent=line; label.appendChild(t);
+      });
+      rg.appendChild(label);
+      rg.addEventListener("click",e=>{
+        e.stopPropagation();
+        selectMapFloor(floor);
+        $("#mapRoomInfo").innerHTML=`<div><strong>${floor}F｜${room.name}</strong><small>ここに文化祭当日の企画名・混雑状況などを表示できるようにします。</small></div><span class="pill">ROOM</span>`;
+      });
+      g.appendChild(rg);
+    });
+
+    const labelPos={x:start.x-5,y:start.y-58};
+    const fn=svgEl("text",{class:"floor-name",x:labelPos.x,y:labelPos.y,transform:`rotate(-17 ${labelPos.x} ${labelPos.y})`});
+    fn.textContent=`${floor}F`;
+    g.appendChild(fn);
+    g.addEventListener("click",()=>selectMapFloor(floor));
+    $("#svgFloors").appendChild(g);
+  }
+
+  function selectMapFloor(floor){
+    selectedMapFloor=Number(floor);
+    $$('[data-floor]').forEach(b=>b.classList.toggle('active',Number(b.dataset.floor)===selectedMapFloor));
+    $$('[data-svg-floor]').forEach(g=>{
+      const active=Number(g.dataset.svgFloor)===selectedMapFloor;
+      g.classList.toggle('active',active);
+      g.classList.toggle('inactive',!active);
+    });
+    $("#mapRoomInfo").innerHTML=`<div><strong>${selectedMapFloor}Fを選択中</strong><small>教室をタップすると部屋名を確認できます。</small></div><span class="pill">MAP</span>`;
+  }
+
+  [3,2,1].forEach((f,i)=>drawFloor(f,i));
+  $$('[data-floor]').forEach(b=>b.onclick=()=>selectMapFloor(b.dataset.floor));
+  selectMapFloor(1);
+
 
   function toast(msg){
     const t=$("#toast");t.textContent=msg;t.classList.add("show");
