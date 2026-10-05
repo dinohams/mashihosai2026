@@ -1053,6 +1053,174 @@
       box-shadow:none;
     }
 
+
+    /* ===== Live program notices ===== */
+    .live-notice-list{
+      display:grid;
+      gap:9px;
+    }
+    .live-notice-card{
+      padding:14px 15px;
+      border-radius:18px;
+      background:linear-gradient(135deg,#fffafb,#fff0f4);
+      border:1px solid #efcfd8;
+      box-shadow:0 6px 18px rgba(137,66,88,.06);
+    }
+    .live-notice-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .live-notice-head small{
+      display:block;
+      color:#a4687a;
+      font-size:10px;
+      font-weight:900;
+      margin-bottom:2px;
+    }
+    .live-notice-head strong{
+      display:block;
+      color:#742d46;
+      font-size:13px;
+      line-height:1.35;
+    }
+    .live-notice-head time{
+      flex:0 0 auto;
+      color:#ad8491;
+      font-size:9px;
+      font-weight:900;
+    }
+    .live-notice-card p{
+      margin:9px 0 0;
+      color:#714d5a;
+      font-size:13px;
+      line-height:1.65;
+      white-space:pre-wrap;
+      overflow-wrap:anywhere;
+    }
+
+    /* ===== Admin notice composer ===== */
+    .admin-card-button{
+      border:1px solid var(--line);
+      width:100%;
+      text-align:left;
+      color:var(--ink);
+      font:inherit;
+      cursor:pointer;
+    }
+    .admin-card-button:active{
+      transform:scale(.985);
+    }
+    .owner-menu-cards{
+      display:contents;
+    }
+    .notice-composer-card{
+      padding:16px;
+      border-radius:20px;
+      background:#fffafb;
+      border:1px solid #efd7de;
+      box-shadow:0 6px 18px rgba(137,66,88,.055);
+    }
+    .notice-form-label{
+      display:block;
+      margin:0 2px 6px;
+      color:#7d4357;
+      font-size:11px;
+      font-weight:1000;
+    }
+    .notice-program-select{
+      width:100%;
+      height:47px;
+      padding:0 12px;
+      border:1px solid #e8c8d2;
+      border-radius:14px;
+      background:#fff;
+      color:#613044;
+      font-size:13px;
+      font-weight:800;
+      outline:none;
+    }
+    .notice-program-select:focus{
+      border-color:#ce6d88;
+      box-shadow:0 0 0 3px rgba(206,109,136,.12);
+    }
+    .notice-lock-status{
+      margin:10px 0 15px;
+      padding:10px 11px;
+      border-radius:12px;
+      background:#f8edf1;
+      color:#8e6876;
+      font-size:11px;
+      line-height:1.5;
+      font-weight:900;
+    }
+    .notice-lock-status.checking{
+      background:#fff0dd;
+      color:#9b6b38;
+    }
+    .notice-lock-status.editing{
+      background:#eaf6ee;
+      color:#4c7c5d;
+    }
+    .notice-lock-status.locked{
+      background:#fff0f3;
+      color:#b6405f;
+    }
+    .notice-lock-status.sent{
+      background:#eaf6ee;
+      color:#4c7c5d;
+    }
+    .notice-textarea{
+      box-sizing:border-box;
+      width:100%;
+      min-height:125px;
+      resize:vertical;
+      padding:12px;
+      border:1px solid #e8c8d2;
+      border-radius:14px;
+      background:#fff;
+      color:#5f3343;
+      font:inherit;
+      font-size:14px;
+      line-height:1.6;
+      outline:none;
+    }
+    .notice-textarea:focus{
+      border-color:#ce6d88;
+      box-shadow:0 0 0 3px rgba(206,109,136,.12);
+    }
+    .notice-textarea:disabled{
+      background:#f6eff1;
+      color:#a78d96;
+    }
+    .notice-compose-bottom{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-top:10px;
+    }
+    .notice-compose-bottom span{
+      color:#a27b89;
+      font-size:10px;
+      font-weight:900;
+    }
+    .notice-submit-btn{
+      min-width:108px;
+      border:0;
+      border-radius:13px;
+      padding:11px 17px;
+      background:linear-gradient(135deg,#bf4969,#df7891);
+      color:#fff;
+      font-weight:1000;
+      box-shadow:0 6px 16px rgba(189,73,104,.17);
+    }
+    .notice-submit-btn:disabled{
+      background:#e6c9d1;
+      box-shadow:none;
+    }
+
 </style>
 </head>
 <body>
@@ -1075,6 +1243,11 @@
 
   <main>
     <section class="view active" id="homeView">
+      <div id="liveNoticeSection" hidden>
+        <div class="section-head"><h2>企画からのお知らせ</h2><span>最新</span></div>
+        <div id="liveNoticeList" class="live-notice-list"></div>
+      </div>
+
       <div class="section-head"><h2>あなたへのオススメ</h2><span>ランダム</span></div>
       <div id="recommendCard" class="recommend-card"></div>
 
@@ -1188,12 +1361,55 @@
           <button class="ghost" id="logoutBtn" style="margin-top:13px">ログアウト</button>
         </div>
 
-        <div class="section-head"><h2>管理メニュー</h2><span>順次実装</span></div>
-        <div class="admin-cards">
-          <div class="admin-card"><span class="icon">📢</span><b>お知らせ</b><small>投稿・編集・削除</small></div>
-          <div class="admin-card"><span class="icon">🎪</span><b>企画</b><small>企画情報・混雑状況</small></div>
-          <div class="admin-card"><span class="icon">🕒</span><b>ステージ</b><small>時間・進行状況</small></div>
-          <div class="admin-card"><span class="icon">👥</span><b>教員</b><small>権限・利用許可</small></div>
+        <div id="adminMenuSection">
+          <div class="section-head"><h2>管理メニュー</h2><span id="adminMenuRoleLabel">お知らせ投稿</span></div>
+
+          <div class="admin-cards">
+            <button class="admin-card admin-card-button" id="noticeAdminCard">
+              <span class="icon">📢</span>
+              <b>お知らせ</b>
+              <small>企画を選んで投稿</small>
+            </button>
+
+            <div id="ownerMenuCards" class="owner-menu-cards" style="display:none">
+              <div class="admin-card"><span class="icon">🎪</span><b>企画</b><small>企画情報・混雑状況</small></div>
+              <div class="admin-card"><span class="icon">🕒</span><b>ステージ</b><small>時間・進行状況</small></div>
+              <div class="admin-card"><span class="icon">👥</span><b>教員</b><small>権限・利用許可</small></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="noticeComposerPanel" style="display:none">
+          <div class="section-head">
+            <h2>お知らせ投稿</h2>
+            <button id="closeNoticeComposer" class="admin-refresh">戻る</button>
+          </div>
+
+          <div class="notice-composer-card">
+            <label class="notice-form-label" for="noticeProgramSelect">企画を選ぶ</label>
+            <select id="noticeProgramSelect" class="notice-program-select">
+              <option value="">企画を選択してください</option>
+            </select>
+
+            <div id="noticeLockStatus" class="notice-lock-status">
+              企画を選ぶと編集できます。
+            </div>
+
+            <label class="notice-form-label" for="noticeText">お知らせ本文</label>
+            <textarea
+              id="noticeText"
+              class="notice-textarea"
+              rows="5"
+              maxlength="500"
+              placeholder="例：ただいま待ち時間なしです！"
+              disabled
+            ></textarea>
+
+            <div class="notice-compose-bottom">
+              <span id="noticeCharCount">0 / 500</span>
+              <button id="submitLiveNotice" class="notice-submit-btn" disabled>送信</button>
+            </div>
+          </div>
         </div>
 
         <div id="ownerToolsPanel" style="display:none">
@@ -1270,7 +1486,8 @@
     signOut, onAuthStateChanged, setPersistence, browserLocalPersistence
   } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
   import {
-    getFirestore, doc, getDoc, setDoc, collection, getDocs, serverTimestamp, writeBatch
+    getFirestore, doc, getDoc, setDoc, collection, getDocs, serverTimestamp, writeBatch,
+    addDoc, query, orderBy, limit, onSnapshot, runTransaction, Timestamp
   } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -1458,6 +1675,31 @@
   ];
 
 
+
+  const noticePrograms=programs.map((program,index)=>({
+    ...program,
+    noticeId:`program-${String(index+1).padStart(2,"0")}`
+  }));
+
+  const NOTICE_LOCK_MS=90000;
+  const NOTICE_RENEW_MS=30000;
+
+  const editorSessionId=(()=>{
+    const key="mashihosai2026_editor_session";
+    let value=sessionStorage.getItem(key);
+    if(!value){
+      value=crypto.randomUUID
+        ? crypto.randomUUID()
+        : `session-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      sessionStorage.setItem(key,value);
+    }
+    return value;
+  })();
+
+  let lockedNoticeProgramId=null;
+  let noticeLockRenewTimer=null;
+  let noticeSelectionToken=0;
+
   const voteCandidates=[
     {id:"class-1-1",group:"1年1組",title:"アクセサリーを作ろう",icon:"💎"},
     {id:"class-1-2",group:"1年2組",title:"撃って！撮って！1-2ワールド！",icon:"📸"},
@@ -1481,6 +1723,15 @@
     return (auth.currentUser?.email || "").toLowerCase() === OWNER_EMAIL;
   }
 
+  function isSharedStaff(){
+    return !isOwner() && allowedUser?.role==="staff";
+  }
+
+  function canPostLiveNotices(){
+    return isOwner() || allowedUser?.role==="staff" || allowedUser?.role==="admin";
+  }
+
+
   const scheduleItems=[
     {start:"10:00",end:"10:15",display:"10:00〜",title:"体育館 開館",place:"体育館"},
     {start:"10:15",end:"10:40",display:"10:15〜10:40",title:"英語スピーチコンテスト",place:"体育館"},
@@ -1496,6 +1747,13 @@
   ];
 
   function go(view){
+    if(view!=="admin" && lockedNoticeProgramId){
+      noticeSelectionToken++;
+      releaseNoticeLock();
+      $("#noticeComposerPanel").style.display="none";
+      $("#adminMenuSection").style.display="block";
+    }
+
     $$(".view").forEach(v=>v.classList.toggle("active",v.id===view+"View"));
     $$(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
 
@@ -1553,6 +1811,325 @@
       "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
     }[ch]));
   }
+
+  function formatNoticeTime(timestamp){
+    if(!timestamp?.toDate) return "送信中";
+    const d=timestamp.toDate();
+    return `${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+  }
+
+  function renderLiveNotices(snapshot){
+    const section=$("#liveNoticeSection");
+    const list=$("#liveNoticeList");
+
+    if(snapshot.empty){
+      section.hidden=true;
+      list.innerHTML="";
+      return;
+    }
+
+    section.hidden=false;
+    list.innerHTML=snapshot.docs.map(docSnap=>{
+      const n=docSnap.data();
+      return `
+        <article class="live-notice-card">
+          <div class="live-notice-head">
+            <div>
+              <small>${escapeHtmlLocal(n.programGroup || "企画")}</small>
+              <strong>${escapeHtmlLocal(n.programTitle || "")}</strong>
+            </div>
+            <time>${formatNoticeTime(n.createdAt)}</time>
+          </div>
+          <p>${escapeHtmlLocal(n.text || "")}</p>
+        </article>
+      `;
+    }).join("");
+  }
+
+  const liveNoticeQuery=query(
+    collection(db,"liveNotices"),
+    orderBy("createdAt","desc"),
+    limit(30)
+  );
+
+  onSnapshot(
+    liveNoticeQuery,
+    renderLiveNotices,
+    error=>{
+      console.error("live notice listener:",error);
+      $("#liveNoticeSection").hidden=true;
+    }
+  );
+
+  function populateNoticeProgramSelect(){
+    const select=$("#noticeProgramSelect");
+    if(!select) return;
+
+    select.innerHTML=
+      '<option value="">企画を選択してください</option>'+
+      noticePrograms.map(program=>`
+        <option value="${program.noticeId}">
+          ${escapeHtmlLocal(program.group)}｜${escapeHtmlLocal(program.name)}
+        </option>
+      `).join("");
+  }
+
+  function selectedNoticeProgram(){
+    const id=$("#noticeProgramSelect")?.value;
+    return noticePrograms.find(program=>program.noticeId===id) || null;
+  }
+
+  function setNoticeEditorEnabled(enabled){
+    $("#noticeText").disabled=!enabled;
+    $("#submitLiveNotice").disabled=!enabled || !$("#noticeText").value.trim();
+  }
+
+  function setNoticeLockMessage(message,state=""){
+    const el=$("#noticeLockStatus");
+    el.className=`notice-lock-status ${state}`.trim();
+    el.textContent=message;
+  }
+
+  function clearNoticeRenewTimer(){
+    if(noticeLockRenewTimer){
+      clearInterval(noticeLockRenewTimer);
+      noticeLockRenewTimer=null;
+    }
+  }
+
+  async function releaseNoticeLock(programId=lockedNoticeProgramId){
+    if(!programId) return;
+
+    clearNoticeRenewTimer();
+
+    const ref=doc(db,"noticeLocks",programId);
+
+    try{
+      await runTransaction(db,async transaction=>{
+        const snap=await transaction.get(ref);
+        if(!snap.exists()) return;
+
+        const data=snap.data();
+        if(data.sessionId!==editorSessionId) return;
+
+        transaction.set(ref,{
+          programId,
+          sessionId:editorSessionId,
+          expiresAt:Timestamp.fromMillis(Date.now()-1000),
+          updatedAt:serverTimestamp()
+        });
+      });
+    }catch(error){
+      console.warn("lock release failed:",error);
+    }
+
+    if(lockedNoticeProgramId===programId){
+      lockedNoticeProgramId=null;
+    }
+  }
+
+  function handleNoticeLockLost(){
+    clearNoticeRenewTimer();
+    lockedNoticeProgramId=null;
+    setNoticeEditorEnabled(false);
+    setNoticeLockMessage("編集権限が切れました。企画を選び直してください。","locked");
+  }
+
+  async function renewNoticeLock(){
+    const programId=lockedNoticeProgramId;
+    if(!programId) return;
+
+    const ref=doc(db,"noticeLocks",programId);
+
+    try{
+      await runTransaction(db,async transaction=>{
+        const snap=await transaction.get(ref);
+
+        if(!snap.exists() || snap.data().sessionId!==editorSessionId){
+          throw new Error("LOCK_LOST");
+        }
+
+        transaction.set(ref,{
+          programId,
+          sessionId:editorSessionId,
+          expiresAt:Timestamp.fromMillis(Date.now()+NOTICE_LOCK_MS),
+          updatedAt:serverTimestamp()
+        });
+      });
+    }catch(error){
+      console.warn("lock renew failed:",error);
+      handleNoticeLockLost();
+    }
+  }
+
+  function startNoticeLockRenewal(){
+    clearNoticeRenewTimer();
+    noticeLockRenewTimer=setInterval(renewNoticeLock,NOTICE_RENEW_MS);
+  }
+
+  async function acquireNoticeLock(programId,selectionToken){
+    const ref=doc(db,"noticeLocks",programId);
+
+    try{
+      await runTransaction(db,async transaction=>{
+        const snap=await transaction.get(ref);
+        const now=Date.now();
+
+        if(snap.exists()){
+          const data=snap.data();
+          const expiresAt=data.expiresAt?.toMillis ? data.expiresAt.toMillis() : 0;
+          const active=expiresAt>now;
+
+          if(active && data.sessionId!==editorSessionId){
+            throw new Error("LOCKED_BY_OTHER");
+          }
+        }
+
+        transaction.set(ref,{
+          programId,
+          sessionId:editorSessionId,
+          expiresAt:Timestamp.fromMillis(now+NOTICE_LOCK_MS),
+          updatedAt:serverTimestamp()
+        });
+      });
+
+      if(selectionToken!==noticeSelectionToken){
+        await releaseNoticeLock(programId);
+        return false;
+      }
+
+      lockedNoticeProgramId=programId;
+      startNoticeLockRenewal();
+      return true;
+
+    }catch(error){
+      if(error?.message==="LOCKED_BY_OTHER"){
+        return false;
+      }
+      console.error("lock acquire failed:",error);
+      throw error;
+    }
+  }
+
+  async function handleNoticeProgramChange(){
+    const token=++noticeSelectionToken;
+    const nextProgram=selectedNoticeProgram();
+
+    $("#noticeText").value="";
+    $("#noticeCharCount").textContent="0 / 500";
+    setNoticeEditorEnabled(false);
+
+    if(lockedNoticeProgramId){
+      await releaseNoticeLock();
+    }
+
+    if(token!==noticeSelectionToken) return;
+
+    if(!nextProgram){
+      setNoticeLockMessage("企画を選ぶと編集できます。");
+      return;
+    }
+
+    setNoticeLockMessage("編集できるか確認しています…","checking");
+
+    try{
+      const acquired=await acquireNoticeLock(nextProgram.noticeId,token);
+
+      if(token!==noticeSelectionToken) return;
+
+      if(!acquired){
+        setNoticeLockMessage(
+          "ほかの先生が編集中のため編集できません。編集が終わるまでお待ちください。",
+          "locked"
+        );
+        return;
+      }
+
+      setNoticeLockMessage(
+        `${nextProgram.group}「${nextProgram.name}」を編集中です。`,
+        "editing"
+      );
+      setNoticeEditorEnabled(true);
+      $("#noticeText").focus();
+
+    }catch(error){
+      setNoticeLockMessage(
+        "編集状態を確認できませんでした。通信状況を確認して選び直してください。",
+        "locked"
+      );
+    }
+  }
+
+  async function submitLiveNotice(){
+    const program=selectedNoticeProgram();
+    const body=$("#noticeText").value.trim();
+
+    if(!program || !body) return;
+
+    if(lockedNoticeProgramId!==program.noticeId){
+      setNoticeLockMessage("編集権限がありません。企画を選び直してください。","locked");
+      setNoticeEditorEnabled(false);
+      return;
+    }
+
+    $("#submitLiveNotice").disabled=true;
+    setNoticeLockMessage("送信しています…","checking");
+
+    try{
+      await addDoc(collection(db,"liveNotices"),{
+        programId:program.noticeId,
+        programGroup:program.group,
+        programTitle:program.name,
+        text:body,
+        createdAt:serverTimestamp()
+      });
+
+      await releaseNoticeLock(program.noticeId);
+
+      $("#noticeProgramSelect").value="";
+      $("#noticeText").value="";
+      $("#noticeCharCount").textContent="0 / 500";
+      setNoticeEditorEnabled(false);
+      setNoticeLockMessage("送信しました。別の企画を選んで続けて投稿できます。","sent");
+      toast("お知らせを送信しました");
+
+    }catch(error){
+      console.error("notice submit failed:",error);
+      setNoticeLockMessage("送信に失敗しました。もう一度お試しください。","locked");
+
+      if(lockedNoticeProgramId===program.noticeId){
+        setNoticeEditorEnabled(true);
+      }
+    }
+  }
+
+  function openNoticeComposer(){
+    if(!canPostLiveNotices()) return;
+
+    $("#noticeComposerPanel").style.display="block";
+    $("#adminMenuSection").style.display="none";
+    $("#noticeProgramSelect").value="";
+    $("#noticeText").value="";
+    $("#noticeCharCount").textContent="0 / 500";
+    setNoticeEditorEnabled(false);
+    setNoticeLockMessage("企画を選ぶと編集できます。");
+
+    $("#noticeComposerPanel").scrollIntoView({behavior:"smooth",block:"start"});
+  }
+
+  async function closeNoticeComposer(){
+    noticeSelectionToken++;
+    await releaseNoticeLock();
+
+    $("#noticeComposerPanel").style.display="none";
+    $("#adminMenuSection").style.display="block";
+    $("#noticeProgramSelect").value="";
+    $("#noticeText").value="";
+    $("#noticeCharCount").textContent="0 / 500";
+    setNoticeEditorEnabled(false);
+  }
+
+
 
   function renderRecommendation(){
     const candidates=programs.filter(p=>p.group!=="有志団体");
@@ -1891,6 +2468,22 @@
   $("#applySimulatedTime").onclick=applySimulatedTime;
   $("#clearSimulatedTime").onclick=clearSimulatedTime;
 
+  $("#noticeAdminCard").onclick=openNoticeComposer;
+  $("#closeNoticeComposer").onclick=closeNoticeComposer;
+  $("#noticeProgramSelect").addEventListener("change",handleNoticeProgramChange);
+
+  $("#noticeText").addEventListener("input",()=>{
+    const body=$("#noticeText").value;
+    $("#noticeCharCount").textContent=`${body.length} / 500`;
+    $("#submitLiveNotice").disabled=
+      !body.trim() ||
+      !lockedNoticeProgramId ||
+      lockedNoticeProgramId!==$("#noticeProgramSelect").value;
+  });
+
+  $("#submitLiveNotice").onclick=submitLiveNotice;
+
+
 
   $$("[data-floor]").forEach(b=>b.onclick=()=>{
     const floor=b.dataset.floor;
@@ -2051,6 +2644,8 @@
   $("#dialogGoogleLogin").onclick=()=>googleOwnerLogin($("#dialogStatus"));
 
   $("#logoutBtn").onclick=async()=>{
+    noticeSelectionToken++;
+    await releaseNoticeLock();
     await signOut(auth);
     go("home");
     toast("ログアウトしました");
@@ -2073,7 +2668,10 @@
       $("#adminLoggedIn").classList.remove("show");
       $("#voteAdminPanel").style.display="none";
       $("#ownerToolsPanel").style.display="none";
+      $("#ownerMenuCards").style.display="none";
       $("#resetVotesBtn").style.display="none";
+      $("#noticeComposerPanel").style.display="none";
+      $("#adminMenuSection").style.display="block";
       renderNowPlaying();
       renderVotePage();
       return;
@@ -2105,10 +2703,18 @@
 
       const isAdmin=data.role==="admin";
       const owner=isOwner();
+      const staff=isSharedStaff();
 
+      // 共有staffは「お知らせ投稿」だけ。
+      // owner/adminは従来の管理機能も利用可能。
+      $("#ownerMenuCards").style.display=(owner || isAdmin) ? "contents" : "none";
       $("#voteAdminPanel").style.display=isAdmin ? "block" : "none";
       $("#ownerToolsPanel").style.display=owner ? "block" : "none";
       $("#resetVotesBtn").style.display=owner ? "inline-block" : "none";
+      $("#adminMenuRoleLabel").textContent=staff ? "お知らせ投稿のみ" : "管理機能";
+
+      $("#noticeComposerPanel").style.display="none";
+      $("#adminMenuSection").style.display="block";
 
       syncOwnerSimulationUI();
       renderNowPlaying();
@@ -2131,6 +2737,7 @@
   renderSchedule();
   renderVotePage();
   renderNowPlaying();
+  populateNoticeProgramSelect();
 
   // 毎日、現在時刻に合わせて自動更新
   setInterval(renderNowPlaying,15000);
