@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#152a4a">
+  <meta name="theme-color" content="#d85f7b">
   <title>益子芳星高校 文化祭2026</title>
   <style>
     :root{
@@ -473,6 +473,176 @@
       -webkit-tap-highlight-color: transparent;
     }
 
+
+    /* ===== Pastel pink / red theme ===== */
+    :root{
+      --bg:#fff4f6;
+      --paper:#fffafb;
+      --ink:#542536;
+      --muted:#956f7c;
+      --line:#f0d6de;
+      --navy:#a83d5e;
+      --blue:#dc607e;
+      --yellow:#f3a9b9;
+      --orange:#e97e91;
+      --red:#d84e69;
+      --green:#83a992;
+      --shadow:0 10px 28px rgba(135,63,86,.10);
+    }
+
+    body{
+      background:
+        radial-gradient(circle at 8% 0%, rgba(243,169,185,.24), transparent 30%),
+        radial-gradient(circle at 92% 7%, rgba(229,111,137,.14), transparent 31%),
+        linear-gradient(180deg,#fff9fa 0%,#fff2f5 100%);
+    }
+
+    .topbar{
+      background:rgba(255,248,250,.94);
+      border-bottom-color:#efd7de;
+    }
+
+    .brand small{color:#a47784}
+    .brand h1{color:#7f3049}
+
+    .header-slogan{
+      background:linear-gradient(135deg,#fffafb,#fde7ed);
+      border-color:#efcbd6;
+      box-shadow:0 8px 20px rgba(157,70,97,.07);
+    }
+    .header-slogan-main{color:#c84f70}
+    .header-slogan-side small{color:#a36b7c}
+    .header-slogan-side strong{color:#8f3652}
+
+    /* Header直下の余白を全ページで詰める */
+    main{
+      padding-top:5px;
+    }
+    .view > .section-head:first-child{
+      margin-top:5px;
+    }
+    #homeView > .section-head:first-child,
+    #scheduleView > .section-head:first-child,
+    #infoView > .section-head:first-child{
+      margin-top:4px;
+    }
+
+    .section-head h2{color:#6f2941}
+
+    .now-card,.card,.program,.event-body,.bus-card{
+      background:#fffafb;
+      border-color:#efd7de;
+      box-shadow:0 6px 18px rgba(137,66,88,.055);
+    }
+
+    .now-card{border-left-color:#e96f8b}
+    .live{color:#b84766}
+    .live i{
+      background:#ef91a6;
+      box-shadow:0 0 0 5px rgba(239,145,166,.18);
+    }
+    .time-chip{
+      background:#fdecef;
+      color:#8d3c55;
+    }
+
+    .notice.important{
+      border-left-color:#dc5a75;
+      background:#fff5f7;
+    }
+
+    .filter-btn,.chip{
+      background:#fffafb;
+      border-color:#efd7de;
+      color:#966979;
+    }
+    .filter-btn.active,.chip.active{
+      background:#c95876;
+      border-color:#c95876;
+      color:#fff;
+    }
+
+    .program-icon{
+      background:#fdecef;
+    }
+
+    .badge{
+      background:#fceff2;
+      color:#85576a;
+      border-color:#efd7de;
+    }
+
+    .event-body{
+      border-left-color:#dc607e;
+    }
+    .event-body.now{
+      border-left-color:#ee9aab;
+      background:#fff4f7;
+    }
+
+    .bottom-nav{
+      background:rgba(255,249,251,.96);
+      border-top-color:#efd7de;
+      box-shadow:0 -8px 24px rgba(133,61,83,.07);
+    }
+    .nav-btn{
+      color:#9a7280;
+    }
+    .nav-btn.active{
+      background:#f9dfe6;
+      color:#a83d5e;
+    }
+
+    .primary{
+      background:#b84665;
+    }
+
+    .admin-head{
+      background:linear-gradient(135deg,#a73e5e,#dc7089);
+    }
+    .admin-head small{color:#ffe6ed}
+    .avatar{color:#a83d5e}
+
+    .bus-table th{
+      background:#fbe7ec;
+      color:#7b4054;
+    }
+    .bus-time{color:#b84665}
+
+    /* 仮マップも青系を避ける */
+    .map-stage{
+      background:linear-gradient(160deg,#fffafb 0 45%,#f8e7eb 46% 100%);
+    }
+    .room{
+      background:#fde6ec;
+      color:#8d3853;
+      border-right-color:#d8aab7;
+    }
+    .floor:nth-child(2) .room{
+      background:#f9d9e2;
+      color:#98425b;
+    }
+    .floor:nth-child(3) .room{
+      background:#f6cbd7;
+      color:#84344d;
+    }
+    .floor{
+      border-color:#9e6677;
+      background:#fff7f9;
+    }
+    .school-end{
+      background:#f3dfe5;
+      border-color:#9e6677;
+    }
+    .east-label{
+      background:#fffafb;
+    }
+
+    @media(max-width:640px){
+      main{padding-top:4px}
+      .view > .section-head:first-child{margin-top:4px}
+    }
+
 </style>
 </head>
 <body>
@@ -502,8 +672,6 @@
         <div class="meta"><span>📍 体育館</span><span>👥 やや混雑</span></div>
       </div>
 
-      <div class="section-head"><h2>お知らせ</h2><span>最新</span></div>
-      <div class="notice-list" id="homeNotices"></div>
     </section>
 
     <section class="view" id="mapView">
@@ -851,7 +1019,6 @@
   function renderNotices(){
     const html=notices.map(n=>`<div class="notice ${n.important?"important":""}"><strong>${n.important?"⚠️ ":""}${n.title}</strong><p>${n.text}</p></div>`).join("");
     $("#allNotices").innerHTML=html;
-    $("#homeNotices").innerHTML=notices.slice(0,2).map(n=>`<div class="notice ${n.important?"important":""}"><strong>${n.important?"⚠️ ":""}${n.title}</strong><p>${n.text}</p></div>`).join("");
   }
 
   function crowd(c){return c==="low"?"空いている":c==="mid"?"やや混雑":"混雑";}
