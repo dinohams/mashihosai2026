@@ -285,7 +285,62 @@
     @media(min-width:640px){
       .quick-grid{grid-template-columns:repeat(4,1fr)}
     }
-  </style>
+  
+    .bus-card{
+      background:var(--paper);
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:16px;
+      box-shadow:0 6px 18px rgba(50,40,25,.05);
+    }
+    .bus-card h3{margin:0 0 4px;font-size:17px}
+    .bus-card .bus-note{
+      margin:0 0 13px;
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.6;
+      font-weight:700;
+    }
+    .bus-table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#fff;
+    }
+    .bus-table th,.bus-table td{
+      padding:10px 8px;
+      text-align:center;
+      border-bottom:1px solid var(--line);
+      border-right:1px solid var(--line);
+      font-size:12px;
+    }
+    .bus-table th{
+      background:#f3efe7;
+      font-weight:900;
+      color:#4f596a;
+    }
+    .bus-table tr:last-child td{border-bottom:0}
+    .bus-table th:last-child,.bus-table td:last-child{border-right:0}
+    .bus-time{font-weight:1000;color:var(--navy)}
+    .bus-empty{color:#b0b5bd}
+    .verify{
+      display:flex;
+      align-items:flex-start;
+      gap:8px;
+      margin-top:11px;
+      padding:10px 11px;
+      border-radius:13px;
+      background:#edf8f2;
+      color:#2d7356;
+      font-size:11px;
+      line-height:1.55;
+      font-weight:800;
+    }
+
+</style>
 </head>
 <body>
 <div class="app">
@@ -302,10 +357,11 @@
   <main>
     <section class="view active" id="homeView">
       <div class="hero">
-        <div class="kicker">MASHIKO HOSEI FESTIVAL 2026</div>
-        <h2>見つける。巡る。<br>文化祭を遊び尽くす。</h2>
-        <p>企画・マップ・ステージ予定・お知らせを、ひとつのアプリに。</p>
-        <div class="hero-tags"><span>入場無料</span><span>校内マップ</span><span>リアルタイム案内</span></div>
+        <div class="kicker">第11回 益芳祭</div>
+        <h2>我夢謝楽！！</h2>
+        <p style="font-size:15px;font-weight:900;margin-top:2px;">presented by 益芳祭</p>
+        <p style="font-size:14px;margin-top:5px;">～ガチで青春～</p>
+        <div class="hero-tags"><span>一般公開 10/17（土）</span><span>10:00〜14:00</span><span>入場無料</span></div>
       </div>
 
       <div class="section-head"><h2>ただいま開催中</h2><span>仮データ</span></div>
@@ -374,6 +430,29 @@
     <section class="view" id="infoView">
       <div class="section-head"><h2>運営からのお知らせ</h2><span>仮データ</span></div>
       <div class="notice-list" id="allNotices"></div>
+
+      <div class="section-head"><h2>アクセス・バス時刻表</h2><span>2026/10/17（土）</span></div>
+      <div class="bus-card">
+        <h3>🚌 関東バス（七井台町 発）</h3>
+        <p class="bus-note">益芳祭当日の10〜14時台に利用しやすい便を掲載しています。</p>
+        <table class="bus-table" aria-label="関東バス 七井台町発 時刻表">
+          <thead>
+            <tr>
+              <th>時台</th>
+              <th>宇都宮方面</th>
+              <th>益子方面</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>10時</td><td class="bus-time">10:04</td><td class="bus-empty">—</td></tr>
+            <tr><td>11時</td><td class="bus-time">11:04</td><td class="bus-time">11:04</td></tr>
+            <tr><td>12時</td><td class="bus-time">12:19</td><td class="bus-time">12:04</td></tr>
+            <tr><td>13時</td><td class="bus-time">13:19</td><td class="bus-time">13:19</td></tr>
+            <tr><td>14時</td><td class="bus-time">14:19</td><td class="bus-empty">—</td></tr>
+          </tbody>
+        </table>
+        <div class="verify">✓ 2026年10月5日時点で、現行の土曜ダイヤを確認済みです。運行状況や臨時変更は当日の案内をご確認ください。</div>
+      </div>
     </section>
 
     <section class="view" id="adminView">
@@ -470,12 +549,159 @@
   ];
 
   const programs=[
-    {name:"音楽部スペシャルライブ",group:"音楽部",place:"体育館",cat:"ステージ",icon:"🎸",crowd:"mid",desc:"文化祭限定ライブ。途中入退場OK。"},
-    {name:"レトロ喫茶フォトスポット",group:"2年1組",place:"2-1",cat:"体験",icon:"☕",crowd:"high",desc:"レトロな教室で写真撮影を楽しめます。"},
-    {name:"科学実験ショー",group:"科学部",place:"化学室",cat:"展示",icon:"🧪",crowd:"low",desc:"身近な科学を使った実験を紹介します。"},
-    {name:"光と影のアート展示",group:"美術部",place:"美術室",cat:"展示",icon:"🎨",crowd:"low",desc:"作品と照明を組み合わせた展示。"},
-    {name:"文化祭ミニゲーム",group:"3年2組",place:"3-2",cat:"体験",icon:"🎲",crowd:"mid",desc:"短時間で遊べるゲーム企画。"},
-    {name:"ダンスパフォーマンス",group:"有志",place:"中庭",cat:"ステージ",icon:"💃",crowd:"mid",desc:"有志メンバーによるダンスステージ。"}
+    {
+      name:"アクセサリーを作ろう",
+      group:"1年1組",
+      place:"1-1HR",
+      cat:"クラス企画",
+      icon:"💎",
+      crowd:"low",
+      desc:"私たちのクラスでは、アクセサリーを作ってもらいます！おみくじを引いてもらい、そこに書いてあるラッキーカラーの色に合わせて作ってもらいます！作ったあとはフォトスポットもあるので、ぜひ写真を撮ってください！"
+    },
+    {
+      name:"撃って！撮って！1-2ワールド！",
+      group:"1年2組",
+      place:"1-2HR",
+      cat:"クラス企画",
+      icon:"📸",
+      crowd:"low",
+      desc:"私たち1年2組は、マリオの世界をテーマにしたフォトスポットと射的を用意しました！思い出の1枚をカメラに収めたり、ポイントに応じて景品を貰えたりします。ぜひ遊びに来てください！"
+    },
+    {
+      name:"Shooting mania",
+      group:"1年3組",
+      place:"1-3HR",
+      cat:"クラス企画",
+      icon:"🎯",
+      crowd:"low",
+      desc:"Shooting maniaへようこそ！トイ・ストーリー・マニアをイメージした射的ゲームです。狙いを定めて的を撃ち、高得点を目指そう！ポイントに応じてお菓子をプレゼント！1年3組の元気とパワーを楽しんでね。"
+    },
+    {
+      name:"～Trick Art Treat～ 来なきゃイタズラしちゃうぞ♡",
+      group:"2年1組",
+      place:"2-1HR",
+      cat:"クラス企画",
+      icon:"🎃",
+      crowd:"low",
+      desc:"皆さんご機嫌よう！ようこそTrick Art Treatの世界へ！「えっ、どうなってる！？」と思わず驚く不思議なことが盛りだくさん！見て、撮って、楽しんで、笑って、最高の思い出を作ってねー！待ってます♥♥"
+    },
+    {
+      name:"一夜限りの縁日",
+      group:"2年2組",
+      place:"2-2HR",
+      cat:"クラス企画",
+      icon:"🏮",
+      crowd:"low",
+      desc:"お祭りをテーマに、飲み物やアイス、駄菓子、くじ引きなど、子どもから大人まで楽しめる屋台を用意します！みんなでお祭り気分を味わいながら、楽しい時間を過ごしてください。"
+    },
+    {
+      name:"ドーナツ屋さん",
+      group:"2年3組",
+      place:"2-3HR",
+      cat:"クラス企画",
+      icon:"🍩",
+      crowd:"low",
+      desc:"私たちのクラスでは大人気のミスタードーナツを販売しています。甘くておいしいドーナツをたくさん用意して皆さんをお待ちしています！また、個性あふれる店員の衣装にも注目です！益芳祭のおともにぜひ遊びに来てネ。"
+    },
+    {
+      name:"廃教会でハロウィンパーティー",
+      group:"3年1組",
+      place:"3-1HR",
+      cat:"クラス企画",
+      icon:"⛪",
+      crowd:"low",
+      desc:"1階の3-1の教会では、シスターや黒猫さんたちが、ホットドッグを販売中！教会内は年代物の旧車や蜘蛛の巣がたくさんあるのでぜひ友達と写真をとりに来てください！運が良ければホットドッグの妖精に会えるかも！？"
+    },
+    {
+      name:"ラヴ上等～ハロウィン編",
+      group:"3年2組",
+      place:"3-2HR",
+      cat:"クラス企画",
+      icon:"💘",
+      crowd:"low",
+      desc:"学校購買で人気のパンを販売します！冷たいジュースとアンパンマンチョコもご用意してお待ちしています。写真スポットもあるので、お買い物と一緒に文化祭の思い出を残してください！"
+    },
+    {
+      name:"コンカフェ",
+      group:"3年3組",
+      place:"3-3HR",
+      cat:"クラス企画",
+      icon:"☕",
+      crowd:"low",
+      desc:"いろんなコスプレをした店員がお出迎え♡おいしいドリンクやスイーツを楽しみながら特別な時間を一緒に過ごしませんか？ぜひ遊びに来てね！！"
+    },
+
+    {name:"キッチンカー①",group:"キッチンカー",place:"屋外",cat:"キッチンカー",icon:"🚚",crowd:"low",desc:"店舗名・販売内容は未登録です。"},
+    {name:"キッチンカー②",group:"キッチンカー",place:"屋外",cat:"キッチンカー",icon:"🚚",crowd:"low",desc:"店舗名・販売内容は未登録です。"},
+    {name:"キッチンカー③",group:"キッチンカー",place:"屋外",cat:"キッチンカー",icon:"🚚",crowd:"low",desc:"店舗名・販売内容は未登録です。"},
+    {name:"キッチンカー④",group:"キッチンカー",place:"屋外",cat:"キッチンカー",icon:"🚚",crowd:"low",desc:"店舗名・販売内容は未登録です。"},
+
+    {
+      name:"夏休みの思い出展",
+      group:"写真部",
+      place:"地歴室（教室棟1F）",
+      cat:"部活展示",
+      icon:"📷",
+      crowd:"low",
+      desc:"こんにちは！私たち写真部は、1階の地歴室で写真の展示を行っています。テーマは夏休みの思い出です。ぜひ見に来てください。"
+    },
+    {
+      name:"美術部作品展覧会",
+      group:"美術陶芸部",
+      place:"美術室（教室棟2F）",
+      cat:"部活展示",
+      icon:"🎨",
+      crowd:"low",
+      desc:"美術部部員が制作したイラスト、焼き物などが展示されます。あなたの好きなキャラクターがいるかも？ぜひ立ち寄ってみてください。"
+    },
+
+    {
+      name:"VRゲーム",
+      group:"生徒会",
+      place:"学習室3（教室棟1F）",
+      cat:"生徒会企画",
+      icon:"🥽",
+      crowd:"low",
+      desc:"生徒会によるVRゲーム企画です。詳細は未登録です。"
+    },
+
+
+    {
+      name:"広報活動、体験活動",
+      group:"真岡警察署",
+      place:"昇降口",
+      cat:"特別企画",
+      icon:"🚓",
+      crowd:"low",
+      desc:"真岡警察署のパトカーが展示されています。また、ここでしかできない体験もできます。ぜひ足をお運びください。"
+    },
+    {
+      name:"Keep Shining☆",
+      group:"ダンス部",
+      place:"体育館",
+      cat:"体育館ステージ",
+      icon:"💃",
+      crowd:"low",
+      desc:"私たちが一番大切にしているのは、「キープシャイニング」……いつでも自分たちが輝き続け、その輝きでみんなを元気にすること。弾ける笑顔と全力のパフォーマンスで、会場全体に最高なエネルギーをお届けします！"
+    },
+    {
+      name:"演奏会に来てね！！！",
+      group:"音楽部",
+      place:"体育館",
+      cat:"体育館ステージ",
+      icon:"🎸",
+      crowd:"low",
+      desc:"私たち音楽部は来月11月8日（日）、益子芳星高校体育館で第6回目となる演奏会を開催します！開場は13時30分、開演は14時です。曲はもちろん、衣装や演出にもこだわったライブとなります。ぜひご来場ください！！"
+    },
+    {
+      name:"有志発表",
+      group:"有志団体",
+      place:"体育館",
+      cat:"体育館ステージ",
+      icon:"🎤",
+      crowd:"low",
+      desc:""
+    }
   ];
 
   const schedules={
@@ -510,7 +736,7 @@
 
   function crowd(c){return c==="low"?"空いている":c==="mid"?"やや混雑":"混雑";}
   function renderProgramChips(){
-    const cats=["すべて","ステージ","体験","展示"];
+    const cats=["すべて","クラス企画","キッチンカー","部活展示","生徒会企画","特別企画","体育館ステージ"];
     $("#programChips").innerHTML=cats.map(c=>`<button class="chip ${c===programCategory?"active":""}" data-cat="${c}">${c}</button>`).join("");
     $$("[data-cat]").forEach(b=>b.onclick=()=>{programCategory=b.dataset.cat;renderProgramChips();renderPrograms();});
   }
@@ -529,7 +755,7 @@
           <div><small>${p.group}</small><h3>${p.name}</h3><small>📍 ${p.place}</small></div>
           <span class="badge ${p.crowd}">${crowd(p.crowd)}</span>
         </div>
-        <p>${p.desc}</p>
+        ${p.desc ? `<p>${p.desc}</p>` : ""}
       </div>`).join("");
   }
   $("#programSearch").oninput=renderPrograms;
