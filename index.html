@@ -1281,6 +1281,410 @@
       line-height:1.7;
     }
 
+
+    /* ===== Calm pastel multicolor theme =====
+       長時間見ても疲れにくい、低彩度・高可読性の配色
+    */
+    :root{
+      --bg:#f7f5f1;
+      --paper:#fffdfa;
+      --ink:#2f3946;
+      --muted:#6f7782;
+      --line:#ddd9d2;
+
+      --navy:#5f7896;
+      --blue:#8eabc0;
+      --yellow:#e7cf8f;
+      --orange:#dca884;
+      --red:#c9828d;
+      --green:#8dad98;
+
+      --rose:#d7a7b0;
+      --rose-soft:#f5e7ea;
+      --sage:#a9c2ae;
+      --sage-soft:#eaf2ec;
+      --sky:#abc3d3;
+      --sky-soft:#eaf1f5;
+      --butter:#e6d7a9;
+      --butter-soft:#f7f1df;
+      --lavender:#b9b0cc;
+      --lavender-soft:#f0edf5;
+
+      --shadow:0 10px 28px rgba(68,76,86,.08);
+    }
+
+    body{
+      background:
+        radial-gradient(circle at 7% 0%, rgba(231,207,143,.16), transparent 28%),
+        radial-gradient(circle at 94% 8%, rgba(171,195,211,.16), transparent 30%),
+        linear-gradient(180deg,#faf9f6 0%,#f6f4ef 100%);
+      color:var(--ink);
+    }
+
+    .topbar{
+      background:rgba(250,249,246,.95);
+      border-bottom-color:#ddd8d0;
+    }
+
+    .brand small{
+      color:#7b7f84;
+    }
+
+    .brand h1{
+      color:#495b70;
+    }
+
+    .header-slogan{
+      background:linear-gradient(135deg,#fffdfa,#f4f0e7);
+      border-color:#ddd8d0;
+      box-shadow:0 8px 20px rgba(70,78,88,.06);
+    }
+
+    .header-slogan-main{
+      color:#6e7892;
+    }
+
+    .header-slogan-side small{
+      color:#7f7f86;
+    }
+
+    .header-slogan-side strong{
+      color:#596a5f;
+    }
+
+    .section-head h2,
+    .latest-info-heading h2{
+      color:#425065;
+    }
+
+    .latest-info-heading p,
+    .section-head span{
+      color:#7a818a;
+    }
+
+    .now-card,
+    .card,
+    .program,
+    .event-body,
+    .bus-card,
+    .vote-intro,
+    .vote-summary,
+    .notice-composer-card,
+    .owner-tool-card,
+    .recommend-card{
+      background:var(--paper);
+      border-color:#ddd9d2;
+      box-shadow:0 6px 18px rgba(68,76,86,.05);
+    }
+
+    .recommend-card{
+      background:linear-gradient(135deg,#fffdfa,#f2f5f1);
+      border-color:#d7ded8;
+    }
+
+    .recommend-icon{
+      background:var(--sage-soft);
+    }
+
+    .recommend-body small{
+      color:#728374;
+    }
+
+    .recommend-body h3{
+      color:#46584b;
+    }
+
+    .recommend-place,
+    .recommend-body p{
+      color:#737b78;
+    }
+
+    .live-notice-card{
+      background:linear-gradient(135deg,#fffdfa,#f7f1f2);
+      border-color:#e1d5d8;
+      box-shadow:0 6px 18px rgba(68,76,86,.045);
+    }
+
+    .live-notice-head small{
+      color:#8c6f75;
+    }
+
+    .live-notice-head strong{
+      color:#584d52;
+    }
+
+    .live-notice-head time{
+      color:#8e8b8e;
+    }
+
+    .live-notice-card p{
+      color:#62666d;
+    }
+
+    .now-card{
+      border-left-color:var(--sky);
+    }
+
+    .now-card.idle{
+      border-left-color:#c7c2ba;
+      background:#fffdfa;
+    }
+
+    .live{
+      color:#647d92;
+    }
+
+    .live i{
+      background:#a9bfd0;
+      box-shadow:0 0 0 5px rgba(169,191,208,.18);
+    }
+
+    .time-chip{
+      background:var(--sky-soft);
+      color:#5f7890;
+    }
+
+    .filter-btn,
+    .chip{
+      background:#fffdfa;
+      border-color:#ddd9d2;
+      color:#6d747d;
+    }
+
+    .filter-btn.active,
+    .chip.active{
+      background:#7f98a9;
+      border-color:#7f98a9;
+      color:#fff;
+    }
+
+    .program-icon{
+      background:var(--butter-soft);
+    }
+
+    .badge{
+      background:#f3f0ea;
+      color:#73777d;
+      border-color:#ddd9d2;
+    }
+
+    .event-body{
+      border-left-color:var(--lavender);
+    }
+
+    .event-body.now{
+      border-left-color:var(--sage);
+      background:#f4f8f5;
+    }
+
+    .bottom-nav{
+      background:rgba(251,250,247,.96);
+      border-top-color:#ddd9d2;
+      box-shadow:0 -8px 24px rgba(68,76,86,.06);
+    }
+
+    .nav-btn{
+      color:#737b84;
+    }
+
+    .nav-btn.active{
+      background:#ece8df;
+      color:#53677a;
+    }
+
+    .primary,
+    .teacher-login-btn,
+    .notice-submit-btn{
+      background:linear-gradient(135deg,#7894a7,#91aa9a);
+      color:#fff;
+      box-shadow:0 7px 18px rgba(90,110,116,.16);
+    }
+
+    .owner-google-btn{
+      background:#fffdfa;
+      color:#5e6977;
+      border-color:#ddd9d2;
+    }
+
+    .admin-head{
+      background:linear-gradient(135deg,#6d8296,#879f90);
+    }
+
+    .admin-head small{
+      color:#f3f4ef;
+    }
+
+    .avatar{
+      color:#5f7890;
+    }
+
+    .bus-table th{
+      background:#eef2f2;
+      color:#56636e;
+    }
+
+    .bus-time{
+      color:#607e94;
+    }
+
+    .verify{
+      background:#edf4ee;
+      color:#55725d;
+    }
+
+    .vote-option{
+      background:#fffdfa;
+      border-color:#ddd9d2;
+      color:var(--ink);
+    }
+
+    .vote-option.selected{
+      border-color:#8eaa96;
+      background:#eef5ef;
+      box-shadow:0 0 0 3px rgba(142,170,150,.10);
+    }
+
+    .vote-option-icon{
+      background:var(--butter-soft);
+    }
+
+    .vote-option-text small{
+      color:#7c8078;
+    }
+
+    .vote-radio{
+      border-color:#b8b6b0;
+    }
+
+    .vote-option.selected .vote-radio{
+      border-color:#7d9c86;
+    }
+
+    .vote-option.selected .vote-radio:after{
+      background:#7d9c86;
+    }
+
+    .vote-submit{
+      background:#7f9a8a;
+      box-shadow:0 7px 18px rgba(99,127,110,.16);
+    }
+
+    .vote-submit:disabled{
+      background:#d7d6d1;
+    }
+
+    .vote-done{
+      background:#edf4ee;
+      border-color:#d5e1d7;
+    }
+
+    .vote-done strong{
+      color:#57725f;
+    }
+
+    .vote-done p{
+      color:#6f7a72;
+    }
+
+    .vote-total strong,
+    .vote-result-top b{
+      color:#647d92;
+    }
+
+    .vote-bar{
+      background:#e7e5df;
+    }
+
+    .vote-bar i{
+      background:linear-gradient(90deg,#a9c2ae,#8eabc0);
+    }
+
+    .admin-refresh{
+      background:#fffdfa;
+      color:#60778a;
+      border-color:#d8d5cf;
+    }
+
+    .admin-reset{
+      background:#f6ecee;
+      color:#9a626c;
+      border-color:#e2cbd0;
+    }
+
+    .notice-lock-status{
+      background:#f1f0ec;
+      color:#70757d;
+    }
+
+    .notice-lock-status.checking{
+      background:var(--butter-soft);
+      color:#796b43;
+    }
+
+    .notice-lock-status.editing{
+      background:var(--sage-soft);
+      color:#58705f;
+    }
+
+    .notice-lock-status.locked{
+      background:var(--rose-soft);
+      color:#8a5d66;
+    }
+
+    .notice-lock-status.sent{
+      background:var(--sage-soft);
+      color:#58705f;
+    }
+
+    .login-input,
+    .notice-program-select,
+    .notice-textarea,
+    .owner-time-row input{
+      background:#fffdfa;
+      border-color:#d8d5cf;
+      color:#434d58;
+    }
+
+    .login-input:focus,
+    .notice-program-select:focus,
+    .notice-textarea:focus{
+      border-color:#9ab0bf;
+      box-shadow:0 0 0 3px rgba(154,176,191,.14);
+    }
+
+    .notice-textarea:disabled{
+      background:#f1f0ec;
+      color:#989a9e;
+    }
+
+    .owner-tool-card h3{
+      color:#526478;
+    }
+
+    .owner-tool-card p{
+      color:#747b84;
+    }
+
+    .owner-status{
+      background:#eef1f3;
+      color:#6a7782;
+    }
+
+    .owner-status.active{
+      background:var(--sky-soft);
+      color:#5e778c;
+    }
+
+    /* アクセスページ */
+    .rail-card{
+      background:linear-gradient(180deg,#fffdfa,#faf8f3);
+    }
+
+    /* 可読性を保つため本文色は暗めに固定 */
+    p, td, label, input, textarea, select, button{
+      text-rendering:optimizeLegibility;
+    }
+
 </style>
 </head>
 <body>
@@ -2789,8 +3193,9 @@
   }
 
   onAuthStateChanged(auth,async user=>{
+    allowedUser=null;
+
     if(!user){
-      allowedUser=null;
       $("#adminLoggedOut").style.display="block";
       $("#adminLoggedIn").classList.remove("show");
       $("#voteAdminPanel").style.display="none";
@@ -2803,9 +3208,12 @@
       renderVotePage();
       return;
     }
+
     try{
-      const data=await getAllowed(user);
-      if(!data){
+      const ref=doc(db,"allowedUsers",user.email);
+      const snap=await getDoc(ref);
+
+      if(!snap.exists() || snap.data().enabled!==true){
         const rawMail=(user.email||"").toLowerCase();
         const displayId=rawMail.endsWith(`@${TEACHER_AUTH_DOMAIN}`)
           ? rawMail.split("@")[0]
@@ -2818,7 +3226,10 @@
         $("#loginStatus").textContent=`${displayId} は管理ユーザーとして登録されていません。`;
         return;
       }
+
+      const data=snap.data();
       allowedUser=data;
+
       $("#adminLoggedOut").style.display="none";
       $("#adminLoggedIn").classList.add("show");
       $("#adminName").textContent=data.name||user.displayName||"教員";
@@ -2832,8 +3243,6 @@
       const owner=isOwner();
       const staff=isSharedStaff();
 
-      // 共有staffは「お知らせ投稿」だけ。
-      // owner/adminは従来の管理機能も利用可能。
       $("#ownerMenuCards").style.display=(owner || isAdmin) ? "contents" : "none";
       $("#voteAdminPanel").style.display=isAdmin ? "block" : "none";
       $("#ownerToolsPanel").style.display=owner ? "block" : "none";
@@ -2849,11 +3258,11 @@
 
       if(isAdmin) await loadVoteResults();
 
-      go("admin");
-    }catch(e){
-      console.error(e);
-      $("#loginStatus").className="status bad";
-      $("#loginStatus").textContent="権限確認に失敗しました。";
+      // 重要：
+      // ログイン済みでも自動で管理画面へは移動しない。
+      // 管理画面への遷移は7回タップ時だけ行う。
+    }catch(error){
+      console.error(error);
     }
   });
 
