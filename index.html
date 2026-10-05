@@ -6,6 +6,8 @@
   <meta name="theme-color" content="#d85f7b">
   <title>益子芳星高校 文化祭2026</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap');
+
     :root{
       --bg:#f5f2ea;
       --paper:#fffdf8;
@@ -1685,6 +1687,337 @@
       text-rendering:optimizeLegibility;
     }
 
+
+    /* ===== Pop pastel festival theme ===== */
+    html,body,
+    button,input,select,textarea{
+      font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic","Meiryo",sans-serif;
+    }
+
+    :root{
+      --bg:#fff8f3;
+      --paper:#fffefa;
+      --ink:#334052;
+      --muted:#727b88;
+      --line:#e7ded7;
+
+      --pink:#f3a9bd;
+      --pink-soft:#fde8ee;
+      --peach:#f5bd93;
+      --peach-soft:#fff0e4;
+      --yellow:#efd67f;
+      --yellow-soft:#fff7d9;
+      --mint:#9fd7c2;
+      --mint-soft:#e7f7f1;
+      --sky:#9fcce8;
+      --sky-soft:#e8f5fc;
+      --lavender:#c0afe8;
+      --lavender-soft:#f0ebfc;
+
+      --navy:#6e83a4;
+      --blue:#81b9dc;
+      --green:#86c6aa;
+      --orange:#efae7e;
+      --red:#e88ca0;
+
+      --shadow:0 10px 26px rgba(88,76,72,.08);
+    }
+
+    body{
+      background:
+        radial-gradient(circle at 7% 4%,rgba(253,217,228,.48),transparent 27%),
+        radial-gradient(circle at 92% 7%,rgba(220,241,252,.58),transparent 29%),
+        radial-gradient(circle at 50% 100%,rgba(231,247,241,.46),transparent 36%),
+        #fffaf6;
+      color:var(--ink);
+    }
+
+    .topbar{
+      background:rgba(255,253,249,.95);
+      border-bottom-color:#eadfd8;
+    }
+
+    .brand small{
+      color:#8f7b7f;
+      font-weight:700;
+    }
+
+    .brand h1{
+      color:#5f6f91;
+      font-weight:900;
+      letter-spacing:.025em;
+    }
+
+    .header-slogan{
+      background:linear-gradient(135deg,#fff3f7,#f0f7ff);
+      border-color:#eadce5;
+      box-shadow:0 8px 18px rgba(97,82,90,.07);
+    }
+
+    .header-slogan-main{
+      color:#db7896;
+      font-weight:900;
+    }
+
+    .header-slogan-side small{
+      color:#8f7c92;
+    }
+
+    .header-slogan-side strong{
+      color:#6b77a0;
+      font-weight:900;
+    }
+
+    .section-head h2,
+    .latest-info-heading h2{
+      color:#526382;
+      font-weight:900;
+      letter-spacing:.01em;
+    }
+
+    .section-head span,
+    .latest-info-heading p{
+      color:#7d8390;
+    }
+
+    .live-notice-card:nth-child(6n+1){border-left:6px solid var(--pink);}
+    .live-notice-card:nth-child(6n+2){border-left:6px solid var(--sky);}
+    .live-notice-card:nth-child(6n+3){border-left:6px solid var(--mint);}
+    .live-notice-card:nth-child(6n+4){border-left:6px solid var(--peach);}
+    .live-notice-card:nth-child(6n+5){border-left:6px solid var(--lavender);}
+    .live-notice-card:nth-child(6n+6){border-left:6px solid var(--yellow);}
+
+    .live-notice-card{
+      background:#fffefa;
+      border-top-color:#ece3dd;
+      border-right-color:#ece3dd;
+      border-bottom-color:#ece3dd;
+      box-shadow:0 7px 18px rgba(88,76,72,.05);
+    }
+
+    .live-notice-head small{
+      color:#a77383;
+      font-weight:900;
+    }
+
+    .live-notice-head strong{
+      color:#4c596e;
+      font-weight:900;
+    }
+
+    .recommend-card{
+      background:linear-gradient(135deg,#fffefa,#f1fbf7);
+      border-color:#dcebe4;
+    }
+
+    .recommend-icon{
+      background:linear-gradient(135deg,var(--yellow-soft),var(--peach-soft));
+      border-radius:20px;
+    }
+
+    .recommend-body small{
+      color:#7e9d8a;
+      font-weight:900;
+    }
+
+    .recommend-body h3{
+      color:#536b61;
+      font-weight:900;
+    }
+
+    .now-card{
+      border-left:7px solid var(--sky);
+      background:linear-gradient(135deg,#fffefa,#f2f9fd);
+    }
+
+    .live{
+      color:#6c98b6;
+      font-weight:900;
+    }
+
+    .live i{
+      background:#8fc9e6;
+      box-shadow:0 0 0 5px rgba(143,201,230,.18);
+    }
+
+    .time-chip{
+      background:var(--sky-soft);
+      color:#5e8cac;
+      font-weight:900;
+    }
+
+    .program{
+      border-color:#e8ded7;
+      background:#fffefa;
+    }
+
+    .program:nth-child(5n+1) .program-icon{background:var(--pink-soft);}
+    .program:nth-child(5n+2) .program-icon{background:var(--sky-soft);}
+    .program:nth-child(5n+3) .program-icon{background:var(--mint-soft);}
+    .program:nth-child(5n+4) .program-icon{background:var(--yellow-soft);}
+    .program:nth-child(5n+5) .program-icon{background:var(--lavender-soft);}
+
+    .filter-btn,
+    .chip{
+      background:#fffefa;
+      border-color:#e5ddd7;
+      color:#697487;
+      font-weight:800;
+    }
+
+    .filter-btn.active,
+    .chip.active{
+      background:linear-gradient(135deg,#8ec5e3,#9bd2ba);
+      border-color:transparent;
+      color:#fff;
+    }
+
+    .event-body{
+      border-left:6px solid var(--lavender);
+      background:#fffefa;
+    }
+
+    .event-body.now{
+      border-left-color:var(--mint);
+      background:linear-gradient(135deg,#fffefa,#eefaf5);
+    }
+
+    .vote-option:nth-child(4n+1){background:#fff5f8;}
+    .vote-option:nth-child(4n+2){background:#f3f9fd;}
+    .vote-option:nth-child(4n+3){background:#f1faf6;}
+    .vote-option:nth-child(4n+4){background:#fff9e9;}
+
+    .vote-option{
+      border-color:#e5ddd7;
+    }
+
+    .vote-option.selected{
+      border-color:#8ec9ad;
+      background:#eaf8f1;
+      box-shadow:0 0 0 3px rgba(142,201,173,.12);
+    }
+
+    .vote-radio{
+      border-color:#bbb6b1;
+    }
+
+    .vote-option.selected .vote-radio{
+      border-color:#72b894;
+    }
+
+    .vote-option.selected .vote-radio:after{
+      background:#72b894;
+    }
+
+    .vote-submit,
+    .primary,
+    .teacher-login-btn,
+    .notice-submit-btn{
+      background:linear-gradient(135deg,#f09bb2,#8ec6e7);
+      color:#fff;
+      box-shadow:0 8px 18px rgba(140,120,145,.15);
+      font-weight:900;
+    }
+
+    .bottom-nav{
+      background:rgba(255,254,251,.97);
+      border-top-color:#e7ddd6;
+      box-shadow:0 -7px 20px rgba(92,80,75,.07);
+    }
+
+    .nav-btn{
+      color:#707a89;
+      font-weight:800;
+    }
+
+    .nav-btn.active{
+      background:linear-gradient(135deg,#fde8ef,#e9f5fb);
+      color:#596b87;
+      border-radius:18px;
+    }
+
+    .bus-card{
+      background:#fffefa;
+      border-color:#e7ded7;
+    }
+
+    .bus-card:nth-of-type(1){
+      box-shadow:inset 0 5px 0 var(--peach),0 7px 18px rgba(88,76,72,.05);
+    }
+
+    .rail-card{
+      box-shadow:inset 0 5px 0 var(--mint),0 7px 18px rgba(88,76,72,.05);
+    }
+
+    .bus-table th{
+      background:linear-gradient(180deg,#f2f7fb,#edf4f7);
+      color:#596d80;
+      font-weight:900;
+    }
+
+    .bus-table td{
+      background:#fffefa;
+    }
+
+    .bus-time{
+      color:#678fb0;
+      font-weight:900;
+    }
+
+    .verify{
+      background:linear-gradient(135deg,#edf9f3,#edf6fb);
+      color:#5b7568;
+      border:1px solid #dbece2;
+    }
+
+    .admin-head{
+      background:linear-gradient(135deg,#829fc6,#91c6ad,#e6b1bc);
+    }
+
+    .admin-head h2,
+    .admin-head p,
+    .admin-head small{
+      color:#fff;
+    }
+
+    .notice-lock-status.editing,
+    .notice-lock-status.sent{
+      background:var(--mint-soft);
+      color:#567767;
+    }
+
+    .notice-lock-status.checking{
+      background:var(--yellow-soft);
+      color:#7b6c43;
+    }
+
+    .notice-lock-status.locked{
+      background:var(--pink-soft);
+      color:#905c6c;
+    }
+
+    .owner-tool-card,
+    .notice-composer-card,
+    .vote-summary,
+    .vote-intro{
+      background:#fffefa;
+    }
+
+    /* 見出しだけ少し丸く・可愛く */
+    h1,h2,h3,
+    .brand h1,
+    .header-slogan-main,
+    .header-slogan-side strong,
+    .nav-btn,
+    .filter-btn,
+    .chip{
+      font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic","Meiryo",sans-serif;
+    }
+
+    h1,h2,h3{
+      letter-spacing:.015em;
+    }
+
 </style>
 </head>
 <body>
@@ -1793,10 +2126,10 @@
       <div class="section-head access-subhead"><h2>真岡鐵道時刻表</h2></div>
 
       <div class="bus-card rail-card">
-        <h3>🚃 真岡鐵道（益子駅 発）</h3>
-        <p class="bus-note">益子駅からの11〜14時台の発車時刻です。</p>
+        <h3>🚃 真岡鐵道（七井駅 発）</h3>
+        <p class="bus-note">最寄りの七井駅から、11〜14時台の発車時刻を掲載しています。</p>
 
-        <table class="bus-table" aria-label="真岡鐵道 益子駅発 時刻表">
+        <table class="bus-table" aria-label="真岡鐵道 七井駅発 時刻表">
           <thead>
             <tr>
               <th>時台</th>
@@ -1807,29 +2140,29 @@
           <tbody>
             <tr>
               <td>11時</td>
-              <td class="bus-time">11:18</td>
-              <td class="bus-time">11:05<br>11:56</td>
+              <td class="bus-time">11:14</td>
+              <td class="bus-time">11:14</td>
             </tr>
             <tr>
               <td>12時</td>
-              <td class="bus-time">12:08</td>
-              <td class="bus-time">12:45</td>
+              <td class="bus-time">12:04</td>
+              <td class="bus-time">12:03<br>12:50</td>
             </tr>
             <tr>
               <td>13時</td>
-              <td class="bus-time">13:10<br>13:52</td>
-              <td class="bus-time">13:43</td>
+              <td class="bus-time">13:06<br>13:48</td>
+              <td class="bus-time">13:48</td>
             </tr>
             <tr>
               <td>14時</td>
-              <td class="bus-time">14:38</td>
-              <td class="bus-time">14:27</td>
+              <td class="bus-time">14:34</td>
+              <td class="bus-time">14:35</td>
             </tr>
           </tbody>
         </table>
 
         <div class="verify">
-          ✓ 真岡鐵道公式「益子駅」時刻表を確認済みです。2026年度はSLもおか号が全面運休のため、SL指定便は掲載していません。
+          ✓ 真岡鐵道公式「七井駅」時刻表を確認済みです。2026年度はSLもおか号が全面運休のため、SL指定便は掲載していません。
         </div>
       </div>
     </section>
