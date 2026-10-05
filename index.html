@@ -1259,6 +1259,28 @@
       }
     }
 
+
+    /* ===== Access page ===== */
+    #infoView > .section-head:first-child{
+      margin-top:4px;
+    }
+
+    .access-subhead{
+      margin-top:22px;
+    }
+
+    .bus-table th small{
+      display:block;
+      margin-top:2px;
+      font-size:9px;
+      font-weight:800;
+      color:#9f6c7d;
+    }
+
+    .rail-card .bus-time{
+      line-height:1.7;
+    }
+
 </style>
 </head>
 <body>
@@ -1337,13 +1359,12 @@
     </section>
 
     <section class="view" id="infoView">
-      <div class="section-head"><h2>運営からのお知らせ</h2><span>仮データ</span></div>
-      <div class="notice-list" id="allNotices"></div>
+      <div class="section-head"><h2>バス時刻表</h2></div>
 
-      <div class="section-head"><h2>アクセス・バス時刻表</h2><span>2026/10/17（土）</span></div>
       <div class="bus-card">
         <h3>🚌 関東バス（七井台町 発）</h3>
-        <p class="bus-note">益芳祭当日の10〜14時台に利用しやすい便を掲載しています。</p>
+        <p class="bus-note">益芳祭開催中の11〜14時台に利用しやすい便を掲載しています。</p>
+
         <table class="bus-table" aria-label="関東バス 七井台町発 時刻表">
           <thead>
             <tr>
@@ -1353,14 +1374,59 @@
             </tr>
           </thead>
           <tbody>
-            <tr><td>10時</td><td class="bus-time">10:04</td><td class="bus-empty">—</td></tr>
             <tr><td>11時</td><td class="bus-time">11:04</td><td class="bus-time">11:04</td></tr>
             <tr><td>12時</td><td class="bus-time">12:19</td><td class="bus-time">12:04</td></tr>
             <tr><td>13時</td><td class="bus-time">13:19</td><td class="bus-time">13:19</td></tr>
             <tr><td>14時</td><td class="bus-time">14:19</td><td class="bus-empty">—</td></tr>
           </tbody>
         </table>
-        <div class="verify">✓ 2026年10月5日時点で、現行の土曜ダイヤを確認済みです。運行状況や臨時変更は当日の案内をご確認ください。</div>
+
+        <div class="verify">
+          ✓ 2026年10月5日時点で、現行の土曜ダイヤを確認済みです。運行状況や臨時変更は当日の案内をご確認ください。
+        </div>
+      </div>
+
+      <div class="section-head access-subhead"><h2>真岡鐵道時刻表</h2></div>
+
+      <div class="bus-card rail-card">
+        <h3>🚃 真岡鐵道（益子駅 発）</h3>
+        <p class="bus-note">益子駅からの11〜14時台の発車時刻です。</p>
+
+        <table class="bus-table" aria-label="真岡鐵道 益子駅発 時刻表">
+          <thead>
+            <tr>
+              <th>時台</th>
+              <th>上り<br><small>下館方面</small></th>
+              <th>下り<br><small>茂木方面</small></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>11時</td>
+              <td class="bus-time">11:18</td>
+              <td class="bus-time">11:05<br>11:56</td>
+            </tr>
+            <tr>
+              <td>12時</td>
+              <td class="bus-time">12:08</td>
+              <td class="bus-time">12:45</td>
+            </tr>
+            <tr>
+              <td>13時</td>
+              <td class="bus-time">13:10<br>13:52</td>
+              <td class="bus-time">13:43</td>
+            </tr>
+            <tr>
+              <td>14時</td>
+              <td class="bus-time">14:38</td>
+              <td class="bus-time">14:27</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="verify">
+          ✓ 真岡鐵道公式「益子駅」時刻表を確認済みです。2026年度はSLもおか号が全面運休のため、SL指定便は掲載していません。
+        </div>
       </div>
     </section>
 
@@ -1494,7 +1560,7 @@
   <button class="nav-btn" data-view="programs"><span>🎪</span>企画</button>
   <button class="nav-btn" data-view="schedule"><span>🎤</span>ステージ発表</button>
   <button class="nav-btn" data-view="vote"><span>🗳️</span>投票</button>
-  <button class="nav-btn" data-view="info"><span>📢</span>案内</button>
+  <button class="nav-btn" data-view="info"><span>🚉</span>アクセス</button>
 </nav>
 
 <dialog id="loginDialog">
@@ -1810,10 +1876,6 @@
   $$(".nav-btn").forEach(b=>b.onclick=()=>go(b.dataset.view));
   $$("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
 
-  function renderNotices(){
-    const html=notices.map(n=>`<div class="notice ${n.important?"important":""}"><strong>${n.important?"⚠️ ":""}${n.title}</strong><p>${n.text}</p></div>`).join("");
-    $("#allNotices").innerHTML=html;
-  }
 
   function crowd(c){return c==="low"?"空いている":c==="mid"?"やや混雑":"混雑";}
   function renderProgramChips(){
@@ -2795,7 +2857,6 @@
     }
   });
 
-  renderNotices();
   renderRecommendation();
   renderProgramChips();
   renderPrograms();
