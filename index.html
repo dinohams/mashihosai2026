@@ -459,12 +459,14 @@
     </section>
 
     <section class="view" id="scheduleView">
-      <div class="section-head"><h2>ステージ予定</h2><span>仮データ</span></div>
-      <div class="schedule-day">
-        <button class="day-btn active" data-day="day1">1日目</button>
-        <button class="day-btn" data-day="day2">2日目</button>
+      <div class="section-head">
+        <h2>ステージ発表スケジュール</h2>
+        <span>10/17（土）</span>
       </div>
       <div class="timeline" id="timeline"></div>
+      <p style="margin:14px 4px 0;color:var(--muted);font-size:11px;line-height:1.6;font-weight:700;">
+        ※進行状況により、時間が前後する場合があります。ご了承ください。
+      </p>
     </section>
 
     <section class="view" id="infoView">
@@ -538,7 +540,7 @@
   <button class="nav-btn active" data-view="home"><span>🏠</span>ホーム</button>
   <button class="nav-btn" data-view="map"><span>🏫</span>マップ</button>
   <button class="nav-btn" data-view="programs"><span>🎪</span>企画</button>
-  <button class="nav-btn" data-view="schedule"><span>🕒</span>予定</button>
+  <button class="nav-btn" data-view="schedule"><span>🎤</span>ステージ発表</button>
   <button class="nav-btn" data-view="info"><span>📢</span>案内</button>
 </nav>
 
@@ -580,7 +582,6 @@
   const $$=s=>[...document.querySelectorAll(s)];
   let allowedUser=null;
   let programCategory="すべて";
-  let currentDay="day1";
 
   const notices=[
     {important:true,title:"文化祭アプリ制作中",text:"現在は仮データで表示しています。正式な企画・校内図に順次差し替えます。"},
@@ -744,21 +745,19 @@
     }
   ];
 
-  const schedules={
-    day1:[
-      {time:"09:30",title:"開会セレモニー",place:"体育館"},
-      {time:"10:30",title:"音楽部スペシャルライブ",place:"体育館",now:true},
-      {time:"11:20",title:"ダンスパフォーマンス",place:"中庭"},
-      {time:"12:30",title:"吹奏楽部ステージ",place:"体育館"},
-      {time:"14:00",title:"クラス対抗イベント",place:"体育館"}
-    ],
-    day2:[
-      {time:"09:45",title:"演劇部公演",place:"体育館"},
-      {time:"11:00",title:"有志ライブ",place:"中庭"},
-      {time:"12:30",title:"ダンス部公演",place:"体育館"},
-      {time:"14:30",title:"閉会セレモニー",place:"体育館"}
-    ]
-  };
+  const scheduleItems=[
+    {time:"10:00〜",title:"体育館 開館",place:"体育館"},
+    {time:"10:15〜10:40",title:"英語スピーチコンテスト",place:"体育館"},
+    {time:"10:45〜11:00",title:"家庭クラブ",place:"体育館"},
+    {time:"11:10〜11:50",title:"音楽部",place:"体育館"},
+    {time:"12:00〜12:30",title:"ダンス部",place:"体育館"},
+    {time:"12:40〜12:50",title:"有志発表「音楽部の息抜き」",place:"体育館"},
+    {time:"12:50〜13:00",title:"有志発表「誰が応募したん？これ」",place:"体育館"},
+    {time:"13:00〜13:10",title:"有志発表「Raise」",place:"体育館"},
+    {time:"13:10〜13:20",title:"有志発表「MUSE5」",place:"体育館"},
+    {time:"13:20〜13:30",title:"有志発表「My Life」",place:"体育館"},
+    {time:"13:30〜13:40",title:"有志発表「アスパラドリンクデジタルトランスフォーメーション及びアスパラドリンクα商品広報部」",place:"体育館"}
+  ];
 
   function go(view){
     $$(".view").forEach(v=>v.classList.toggle("active",v.id===view+"View"));
@@ -796,19 +795,15 @@
   }
 
   function renderSchedule(){
-    $("#timeline").innerHTML=schedules[currentDay].map(e=>`
+    $("#timeline").innerHTML=scheduleItems.map(e=>`
       <div class="event">
         <div class="event-time">${e.time}</div>
-        <div class="event-body ${e.now?"now":""}">
-          <h3>${e.title}</h3><p>📍 ${e.place}${e.now?"　● 開催中":""}</p>
+        <div class="event-body">
+          <h3>${e.title}</h3>
+          <p>📍 ${e.place}</p>
         </div>
       </div>`).join("");
   }
-  $$(".day-btn").forEach(b=>b.onclick=()=>{
-    currentDay=b.dataset.day;
-    $$(".day-btn").forEach(x=>x.classList.toggle("active",x===b));
-    renderSchedule();
-  });
 
   $$("[data-floor]").forEach(b=>b.onclick=()=>{
     const floor=b.dataset.floor;
