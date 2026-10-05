@@ -981,6 +981,78 @@
       }
     }
 
+
+    /* ===== Teacher ID login ===== */
+    .teacher-login-card{
+      padding:16px;
+    }
+    .teacher-login-card h3{
+      margin:0 0 6px;
+      color:#7b3048;
+    }
+    .teacher-login-card > p{
+      margin:0 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.6;
+    }
+    .login-label{
+      display:block;
+      margin:10px 2px 5px;
+      color:#825365;
+      font-size:11px;
+      font-weight:900;
+    }
+    .login-input{
+      width:100%;
+      box-sizing:border-box;
+      height:45px;
+      padding:0 12px;
+      border:1px solid #e9cbd4;
+      border-radius:13px;
+      background:#fff;
+      color:#633045;
+      font-size:15px;
+      outline:none;
+    }
+    .login-input:focus{
+      border-color:#ce6d88;
+      box-shadow:0 0 0 3px rgba(206,109,136,.12);
+    }
+    .teacher-login-btn{
+      width:100%;
+      margin-top:14px;
+      border:0;
+      border-radius:14px;
+      padding:12px 14px;
+      background:linear-gradient(135deg,#c34e6e,#df7790);
+      color:#fff;
+      font-weight:1000;
+      box-shadow:0 7px 18px rgba(181,66,96,.18);
+    }
+    .owner-login-separator{
+      display:flex;
+      align-items:center;
+      gap:9px;
+      margin:17px 0 11px;
+      color:#b08a97;
+      font-size:10px;
+      font-weight:900;
+    }
+    .owner-login-separator:before,
+    .owner-login-separator:after{
+      content:"";
+      flex:1;
+      height:1px;
+      background:#efd9e0;
+    }
+    .owner-google-btn{
+      background:#fff;
+      color:#7f4257;
+      border:1px solid #ead0d8;
+      box-shadow:none;
+    }
+
 </style>
 </head>
 <body>
@@ -1080,12 +1152,23 @@
 
     <section class="view" id="adminView">
       <div id="adminLoggedOut">
-        <div class="section-head"><h2>教員管理</h2><span>Google認証</span></div>
-        <div class="card" style="padding:16px">
-          <h3 style="margin:0 0 7px">教員アカウントでログイン</h3>
-          <p style="color:var(--muted);font-size:12px;line-height:1.6">Firebaseの allowedUsers に登録されたGoogleアカウントのみ利用できます。</p>
-          <button class="google-btn" id="googleLogin">Googleでログイン</button>
+        <div class="section-head"><h2>教員管理</h2><span>専用ログイン</span></div>
+
+        <div class="card teacher-login-card">
+          <h3>先生用ログイン</h3>
+          <p>文化祭専用のIDとパスワードを入力してください。</p>
+
+          <label class="login-label" for="teacherId">ID</label>
+          <input class="login-input" id="teacherId" type="text" autocomplete="username" placeholder="teacher01">
+
+          <label class="login-label" for="teacherPassword">パスワード</label>
+          <input class="login-input" id="teacherPassword" type="password" autocomplete="current-password" placeholder="パスワード">
+
+          <button class="teacher-login-btn" id="teacherLogin">ログイン</button>
           <div class="status" id="loginStatus">未ログインです。</div>
+
+          <div class="owner-login-separator"><span>オーナー</span></div>
+          <button class="google-btn owner-google-btn" id="googleLogin">Googleでオーナーログイン</button>
         </div>
       </div>
 
@@ -1160,9 +1243,20 @@
 <dialog id="loginDialog">
   <div class="dialog-body">
     <h2>教員ログイン</h2>
-    <p>文化祭の管理機能を利用する教員向けです。登録されていないGoogleアカウントでは管理画面に入れません。</p>
-    <button class="google-btn" id="dialogGoogleLogin">Googleでログイン</button>
+    <p>文化祭専用のIDとパスワードを入力してください。</p>
+
+    <label class="login-label" for="dialogTeacherId">ID</label>
+    <input class="login-input" id="dialogTeacherId" type="text" autocomplete="username" placeholder="teacher01">
+
+    <label class="login-label" for="dialogTeacherPassword">パスワード</label>
+    <input class="login-input" id="dialogTeacherPassword" type="password" autocomplete="current-password" placeholder="パスワード">
+
+    <button class="teacher-login-btn" id="dialogTeacherLogin">ログイン</button>
     <div class="status" id="dialogStatus">未ログインです。</div>
+
+    <div class="owner-login-separator"><span>オーナー</span></div>
+    <button class="google-btn owner-google-btn" id="dialogGoogleLogin">Googleでオーナーログイン</button>
+
     <button class="ghost" id="dialogClose" style="margin-top:9px">閉じる</button>
   </div>
 </dialog>
@@ -1171,7 +1265,10 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+  import {
+    getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword,
+    signOut, onAuthStateChanged, setPersistence, browserLocalPersistence
+  } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
   import {
     getFirestore, doc, getDoc, setDoc, collection, getDocs, serverTimestamp, writeBatch
   } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
@@ -1870,7 +1967,28 @@
 
   $("#dialogClose").onclick=()=>$("#loginDialog").close();
 
-  async function login(statusEl){
+  const TEACHER_AUTH_DOMAIN="mashihosai.local";
+
+  function teacherIdToEmail(id){
+    const normalized=(id||"").trim().toLowerCase().replace(/[^a-z0-9_-]/g,"");
+    return normalized ? `${normalized}@${TEACHER_AUTH_DOMAIN}` : "";
+  }
+
+  function authErrorMessage(error){
+    const code=error?.code || "";
+    if(code==="auth/invalid-credential" || code==="auth/wrong-password" || code==="auth/user-not-found"){
+      return "IDまたはパスワードが違います。";
+    }
+    if(code==="auth/too-many-requests"){
+      return "ログイン試行が多すぎます。少し時間をおいてから試してください。";
+    }
+    if(code==="auth/network-request-failed"){
+      return "通信できませんでした。ネットワークを確認してください。";
+    }
+    return "ログインに失敗しました。";
+  }
+
+  async function googleOwnerLogin(statusEl){
     statusEl.className="status";
     statusEl.textContent="Googleログインを開始しています…";
     try{
@@ -1879,12 +1997,64 @@
     }catch(e){
       console.error(e);
       statusEl.className="status bad";
-      statusEl.textContent="ログインに失敗しました：" + (e.code||e.message);
+      statusEl.textContent=authErrorMessage(e);
     }
   }
-  $("#googleLogin").onclick=()=>login($("#loginStatus"));
-  $("#dialogGoogleLogin").onclick=()=>login($("#dialogStatus"));
-  $("#logoutBtn").onclick=async()=>{await signOut(auth);go("home");toast("ログアウトしました");};
+
+  async function teacherLogin(idEl,passwordEl,statusEl){
+    const id=(idEl.value||"").trim();
+    const password=passwordEl.value||"";
+    const email=teacherIdToEmail(id);
+
+    statusEl.className="status";
+
+    if(!email || !password){
+      statusEl.className="status bad";
+      statusEl.textContent="IDとパスワードを入力してください。";
+      return;
+    }
+
+    statusEl.textContent="ログインしています…";
+
+    try{
+      await signInWithEmailAndPassword(auth,email,password);
+      passwordEl.value="";
+      if($("#loginDialog").open) $("#loginDialog").close();
+    }catch(e){
+      console.error(e);
+      statusEl.className="status bad";
+      statusEl.textContent=authErrorMessage(e);
+    }
+  }
+
+  $("#teacherLogin").onclick=()=>teacherLogin(
+    $("#teacherId"),
+    $("#teacherPassword"),
+    $("#loginStatus")
+  );
+
+  $("#dialogTeacherLogin").onclick=()=>teacherLogin(
+    $("#dialogTeacherId"),
+    $("#dialogTeacherPassword"),
+    $("#dialogStatus")
+  );
+
+  $("#teacherPassword").addEventListener("keydown",e=>{
+    if(e.key==="Enter") $("#teacherLogin").click();
+  });
+
+  $("#dialogTeacherPassword").addEventListener("keydown",e=>{
+    if(e.key==="Enter") $("#dialogTeacherLogin").click();
+  });
+
+  $("#googleLogin").onclick=()=>googleOwnerLogin($("#loginStatus"));
+  $("#dialogGoogleLogin").onclick=()=>googleOwnerLogin($("#dialogStatus"));
+
+  $("#logoutBtn").onclick=async()=>{
+    await signOut(auth);
+    go("home");
+    toast("ログアウトしました");
+  };
 
   async function getAllowed(user){
     const email=(user.email||"").toLowerCase();
@@ -1911,17 +2081,25 @@
     try{
       const data=await getAllowed(user);
       if(!data){
-        const mail=user.email||"このアカウント";
+        const rawMail=(user.email||"").toLowerCase();
+        const displayId=rawMail.endsWith(`@${TEACHER_AUTH_DOMAIN}`)
+          ? rawMail.split("@")[0]
+          : (user.email||"このアカウント");
+
         await signOut(auth);
         $("#dialogStatus").className="status bad";
-        $("#dialogStatus").textContent=`${mail} は管理ユーザーとして登録されていません。`;
+        $("#dialogStatus").textContent=`${displayId} は管理ユーザーとして登録されていません。`;
+        $("#loginStatus").className="status bad";
+        $("#loginStatus").textContent=`${displayId} は管理ユーザーとして登録されていません。`;
         return;
       }
       allowedUser=data;
       $("#adminLoggedOut").style.display="none";
       $("#adminLoggedIn").classList.add("show");
       $("#adminName").textContent=data.name||user.displayName||"教員";
-      $("#adminEmail").textContent=user.email||"";
+      $("#adminEmail").textContent=isOwner()
+        ? (user.email||"")
+        : `ID：${(user.email||"").split("@")[0]}`;
       $("#adminRole").textContent=data.role||"teacher";
       $("#avatar").textContent=(data.name||user.displayName||"教").slice(0,1);
 
