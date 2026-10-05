@@ -383,6 +383,12 @@
       -webkit-user-select:none;
     }
 
+
+    html, body{
+      touch-action: manipulation !important;
+      -webkit-tap-highlight-color: transparent;
+    }
+
 </style>
 </head>
 <body>
@@ -815,6 +821,40 @@
     const t=$("#toast");t.textContent=msg;t.classList.add("show");
     clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove("show"),2200);
   }
+
+  // ダブルタップ／ダブルクリックによるページ拡大だけを抑止
+  document.addEventListener("dblclick", (event)=>{
+    event.preventDefault();
+  }, {passive:false});
+
+  // iOS Safari等のダブルタップ拡大対策。
+  // 1本指の連続タップだけ止め、ピンチ操作は妨げない。
+  let lastSingleTouchEnd = 0;
+  let multiTouchGesture = false;
+
+  document.addEventListener("touchstart", (event)=>{
+    if(event.touches.length > 1){
+      multiTouchGesture = true;
+    }else if(event.touches.length === 1){
+      multiTouchGesture = false;
+    }
+  }, {passive:true});
+
+  document.addEventListener("touchend", (event)=>{
+    if(multiTouchGesture || event.touches.length > 0){
+      if(event.touches.length === 0) multiTouchGesture = false;
+      return;
+    }
+
+    const now = Date.now();
+
+    if(now - lastSingleTouchEnd < 350){
+      event.preventDefault();
+    }
+
+    lastSingleTouchEnd = now;
+  }, {passive:false});
+
 // 秘密コマンド：
   // ヘッダーの「第１１回益芳祭」を7回連続タップすると管理入口が開く。
   // 管理画面自体は Firebase Authentication + allowedUsers で保護。
