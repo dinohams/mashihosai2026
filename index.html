@@ -454,8 +454,6 @@
     </section>
 
     <section class="view" id="programsView">
-      <div class="section-head"><h2>企画一覧</h2><span id="programCount">0件</span></div>
-      <input class="search" id="programSearch" placeholder="企画名・団体名・場所で検索">
       <div class="chips" id="programChips"></div>
       <div class="program-list" id="programList"></div>
     </section>
@@ -783,13 +781,9 @@
     $$("[data-cat]").forEach(b=>b.onclick=()=>{programCategory=b.dataset.cat;renderProgramChips();renderPrograms();});
   }
   function renderPrograms(){
-    const q=$("#programSearch").value.trim().toLowerCase();
     const list=programs.filter(p=>{
-      const category=programCategory==="すべて"||p.cat===programCategory;
-      const text=`${p.name} ${p.group} ${p.place}`.toLowerCase().includes(q);
-      return category&&text;
+      return programCategory==="すべて" || p.cat===programCategory;
     });
-    $("#programCount").textContent=`${list.length}件`;
     $("#programList").innerHTML=list.map(p=>`
       <div class="program">
         <div class="program-top">
@@ -800,7 +794,6 @@
         ${p.desc ? `<p>${p.desc}</p>` : ""}
       </div>`).join("");
   }
-  $("#programSearch").oninput=renderPrograms;
 
   function renderSchedule(){
     $("#timeline").innerHTML=schedules[currentDay].map(e=>`
