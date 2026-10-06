@@ -2018,20 +2018,30 @@
       letter-spacing:.015em;
     }
 
+
+    #secretAdminTrigger{
+      display:inline;
+      cursor:default;
+      user-select:none;
+      -webkit-user-select:none;
+      -webkit-tap-highlight-color:transparent;
+      touch-action:manipulation;
+    }
+
 </style>
 </head>
 <body>
 <div class="app">
   <header class="topbar">
     <div class="topbar-inner">
-      <div class="brand" id="secretAdminTrigger" title="">
+      <div class="brand">
         <small>栃木県立益子芳星高等学校</small>
         <h1>第１１回益芳祭</h1>
       </div>
       <div class="header-slogan" aria-label="文化祭スローガン">
         <div class="header-slogan-main">我夢謝楽！！</div>
         <div class="header-slogan-side">
-          <small>presented by 益芳祭</small>
+          <small>presented by <span id="secretAdminTrigger" title="">益芳祭</span></small>
           <strong>～ガチで青春～</strong>
         </div>
       </div>
@@ -2133,7 +2143,7 @@
           <thead>
             <tr>
               <th>時台</th>
-              <th>上り<br><small>下館方面</small></th>
+              <th>上り<br><small>真岡方面</small></th>
               <th>下り<br><small>茂木方面</small></th>
             </tr>
           </thead>
@@ -2245,7 +2255,7 @@
               class="notice-textarea"
               rows="5"
               maxlength="500"
-              placeholder="例：ただいま待ち時間なしです！"
+              placeholder="最新情報を入力。空欄で送信するとホームから削除されます。"
               disabled
             ></textarea>
 
@@ -2330,7 +2340,7 @@
     signOut, onAuthStateChanged, setPersistence, browserLocalPersistence
   } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
   import {
-    getFirestore, doc, getDoc, setDoc, collection, getDocs, serverTimestamp, writeBatch,
+    getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, serverTimestamp, writeBatch,
     addDoc, query, orderBy, limit, onSnapshot, runTransaction, Timestamp
   } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 
@@ -2418,6 +2428,15 @@
       desc:"私たちのクラスでは大人気のミスタードーナツを販売しています。甘くておいしいドーナツをたくさん用意して皆さんをお待ちしています！また、個性あふれる店員の衣装にも注目です！益芳祭のおともにぜひ遊びに来てネ。"
     },
     {
+      name:"道の駅ましことコラボ！益子の魅力ぎっしりBOX販売",
+      group:"2年進学・ビジネスコース",
+      place:"学習室2",
+      cat:"特別企画",
+      icon:"🎁",
+      crowd:"low",
+      desc:"高校生の目線で選んだ益子の魅力が詰まったギフトBOXを販売します。購入者限定で、同封のQRコードから各製作グループが紹介する動画を観ることができます。７グループ各10箱、合計７０箱限定販売！お早めに！！"
+    },
+    {
       name:"廃教会でハロウィンパーティー",
       group:"3年1組",
       place:"3-1HR",
@@ -2454,7 +2473,7 @@
       name:"夏休みの思い出展",
       group:"写真部",
       place:"地歴室（教室棟1F）",
-      cat:"部活展示",
+      cat:"部活・同好会",
       icon:"📷",
       crowd:"low",
       desc:"こんにちは！私たち写真部は、1階の地歴室で写真の展示を行っています。テーマは夏休みの思い出です。ぜひ見に来てください。"
@@ -2463,10 +2482,37 @@
       name:"美術部作品展覧会",
       group:"美術陶芸部",
       place:"美術室（教室棟2F）",
-      cat:"部活展示",
+      cat:"部活・同好会",
       icon:"🎨",
       crowd:"low",
       desc:"美術部部員が制作したイラスト、焼き物などが展示されます。あなたの好きなキャラクターがいるかも？ぜひ立ち寄ってみてください。"
+    },
+    {
+      name:"おいでよ！手芸の部屋",
+      group:"手芸同好会",
+      place:"被服室（管理棟2F）",
+      cat:"部活・同好会",
+      icon:"🧵",
+      crowd:"low",
+      desc:"私たち手芸同好会は、被服室で制作したビーズストラップの販売や気軽に楽しめるワークショップを行います。ぜひ、お気に入りのストラップを見つけたり、ワークショップを体験したりして楽しんでください。"
+    },
+    {
+      name:"お点前（仮）",
+      group:"茶道部",
+      place:"家庭経営室（管理棟3F）",
+      cat:"部活・同好会",
+      icon:"🍵",
+      crowd:"low",
+      desc:""
+    },
+    {
+      name:"文芸部作品展示",
+      group:"文芸部",
+      place:"昇降口",
+      cat:"部活・同好会",
+      icon:"📚",
+      crowd:"low",
+      desc:"私たち文芸部は、自作の小説を展示・配布しています。是非、手に取ってご覧ください。"
     },
 
     {
@@ -2479,7 +2525,6 @@
       desc:"生徒会によるVRゲーム企画です。詳細は未登録です。"
     },
 
-
     {
       name:"広報活動、体験活動",
       group:"真岡警察署",
@@ -2489,14 +2534,15 @@
       crowd:"low",
       desc:"真岡警察署のパトカーが展示されています。また、ここでしかできない体験もできます。ぜひ足をお運びください。"
     },
+
     {
-      name:"Keep Shining☆",
-      group:"ダンス部",
+      name:"家庭クラブ",
+      group:"家庭クラブ",
       place:"体育館",
       cat:"体育館ステージ",
-      icon:"💃",
+      icon:"🏠",
       crowd:"low",
-      desc:"私たちが一番大切にしているのは、「キープシャイニング」……いつでも自分たちが輝き続け、その輝きでみんなを元気にすること。弾ける笑顔と全力のパフォーマンスで、会場全体に最高なエネルギーをお届けします！"
+      desc:"みなさんこんにちは、家庭クラブです！今年度の活動内容を発表します。1年生に家庭クラブについて興味を持ってもらえたら嬉しいです！"
     },
     {
       name:"演奏会に来てね！！！",
@@ -2506,6 +2552,15 @@
       icon:"🎸",
       crowd:"low",
       desc:"私たち音楽部は来月11月8日（日）、益子芳星高校体育館で第6回目となる演奏会を開催します！開場は13時30分、開演は14時です。曲はもちろん、衣装や演出にもこだわったライブとなります。ぜひご来場ください！！"
+    },
+    {
+      name:"Keep Shining☆",
+      group:"ダンス部",
+      place:"体育館",
+      cat:"体育館ステージ",
+      icon:"💃",
+      crowd:"low",
+      desc:"私たちが一番大切にしているのは、「キープシャイニング」……いつでも自分たちが輝き続け、その輝きでみんなを元気にすること。弾ける笑顔と全力のパフォーマンスで、会場全体に最高なエネルギーをお届けします！"
     },
     {
       name:"有志発表",
@@ -2616,7 +2671,7 @@
 
   function crowd(c){return c==="low"?"空いている":c==="mid"?"やや混雑":"混雑";}
   function renderProgramChips(){
-    const cats=["すべて","クラス企画","キッチンカー","部活展示","生徒会企画","特別企画","体育館ステージ"];
+    const cats=["すべて","クラス企画","キッチンカー","部活・同好会","生徒会企画","特別企画","体育館ステージ"];
     $("#programChips").innerHTML=cats.map(c=>`<button class="chip ${c===programCategory?"active":""}" data-cat="${c}">${c}</button>`).join("");
     $$("[data-cat]").forEach(b=>b.onclick=()=>{programCategory=b.dataset.cat;renderProgramChips();renderPrograms();});
   }
@@ -2743,13 +2798,64 @@
 
   function setNoticeEditorEnabled(enabled){
     $("#noticeText").disabled=!enabled;
-    $("#submitLiveNotice").disabled=!enabled || !$("#noticeText").value.trim();
+    // 空欄送信は「ホームの最新情報から削除」として扱うため、
+    // 編集権限さえあれば送信ボタンを押せる。
+    $("#submitLiveNotice").disabled=!enabled;
   }
 
   function setNoticeLockMessage(message,state=""){
     const el=$("#noticeLockStatus");
     el.className=`notice-lock-status ${state}`.trim();
     el.textContent=message;
+  }
+
+  async function getLatestNoticeText(programId){
+    // 現行の固定ドキュメントを最優先。
+    const fixedRef=doc(db,"liveNotices",programId);
+    const fixedSnap=await getDoc(fixedRef);
+    if(fixedSnap.exists()){
+      return fixedSnap.data().text || "";
+    }
+
+    // 旧バージョンでランダムID保存された投稿が残っていても、
+    // 企画ごとの最新本文を拾えるようにする。
+    const snap=await getDocs(
+      query(collection(db,"liveNotices"),orderBy("createdAt","desc"),limit(100))
+    );
+
+    const found=snap.docs.find(d=>d.data().programId===programId);
+    return found ? (found.data().text || "") : "";
+  }
+
+  async function removeAllNoticesForProgram(programId){
+    // 固定ID版＋旧ランダムID版をまとめて削除し、
+    // 古い投稿が再表示されるのを防ぐ。
+    const snap=await getDocs(collection(db,"liveNotices"));
+    const targets=snap.docs.filter(d=>d.data().programId===programId);
+
+    if(!targets.length) return;
+
+    for(let i=0;i<targets.length;i+=400){
+      const batch=writeBatch(db);
+      targets.slice(i,i+400).forEach(d=>batch.delete(d.ref));
+      await batch.commit();
+    }
+  }
+
+  async function removeLegacyDuplicateNotices(programId){
+    // 最新投稿を固定IDへ保存した後、同じ企画の旧ランダムID投稿だけ掃除。
+    const snap=await getDocs(collection(db,"liveNotices"));
+    const legacy=snap.docs.filter(
+      d=>d.id!==programId && d.data().programId===programId
+    );
+
+    if(!legacy.length) return;
+
+    for(let i=0;i<legacy.length;i+=400){
+      const batch=writeBatch(db);
+      legacy.slice(i,i+400).forEach(d=>batch.delete(d.ref));
+      await batch.commit();
+    }
   }
 
   function clearNoticeRenewTimer(){
@@ -2892,31 +2998,44 @@
       return;
     }
 
-    setNoticeLockMessage("編集できるか確認しています…","checking");
+    setNoticeLockMessage("最新の本文を読み込んでいます…","checking");
 
     try{
+      // まず現在ホームに出ている最新本文を読み込む。
+      const currentText=await getLatestNoticeText(nextProgram.noticeId);
+
+      if(token!==noticeSelectionToken) return;
+
+      $("#noticeText").value=currentText;
+      $("#noticeCharCount").textContent=`${currentText.length} / 500`;
+
+      setNoticeLockMessage("編集できるか確認しています…","checking");
+
       const acquired=await acquireNoticeLock(nextProgram.noticeId,token);
 
       if(token!==noticeSelectionToken) return;
 
       if(!acquired){
+        // 本文は見えるが編集は不可。
+        setNoticeEditorEnabled(false);
         setNoticeLockMessage(
-          "ほかの先生が編集中のため編集できません。編集が終わるまでお待ちください。",
+          "ほかの先生が編集中のため編集できません。現在の最新本文を表示しています。",
           "locked"
         );
         return;
       }
 
       setNoticeLockMessage(
-        `${nextProgram.group}「${nextProgram.name}」を編集中です。`,
+        `${nextProgram.group}「${nextProgram.name}」を編集中です。必要な部分だけ修正して送信できます。`,
         "editing"
       );
       setNoticeEditorEnabled(true);
       $("#noticeText").focus();
 
     }catch(error){
+      console.error(error);
       setNoticeLockMessage(
-        "編集状態を確認できませんでした。通信状況を確認して選び直してください。",
+        "最新情報を読み込めませんでした。通信状況を確認して選び直してください。",
         "locked"
       );
     }
@@ -2926,7 +3045,7 @@
     const program=selectedNoticeProgram();
     const body=$("#noticeText").value.trim();
 
-    if(!program || !body) return;
+    if(!program) return;
 
     if(lockedNoticeProgramId!==program.noticeId){
       setNoticeLockMessage("編集権限がありません。企画を選び直してください。","locked");
@@ -2935,18 +3054,25 @@
     }
 
     $("#submitLiveNotice").disabled=true;
-    setNoticeLockMessage("送信しています…","checking");
+    setNoticeLockMessage(body ? "送信しています…" : "最新情報から削除しています…","checking");
 
     try{
-      // 企画IDをドキュメントIDに固定。
-      // 同じ企画が再投稿した場合は前回投稿を上書きする。
-      await setDoc(doc(db,"liveNotices",program.noticeId),{
-        programId:program.noticeId,
-        programGroup:program.group,
-        programTitle:program.name,
-        text:body,
-        createdAt:serverTimestamp()
-      });
+      if(body){
+        // 同じ企画は固定IDへ上書き。
+        await setDoc(doc(db,"liveNotices",program.noticeId),{
+          programId:program.noticeId,
+          programGroup:program.group,
+          programTitle:program.name,
+          text:body,
+          createdAt:serverTimestamp()
+        });
+
+        // 旧バージョンの重複投稿があれば掃除。
+        await removeLegacyDuplicateNotices(program.noticeId);
+      }else{
+        // 空欄送信＝この企画のお知らせをホームから完全削除。
+        await removeAllNoticesForProgram(program.noticeId);
+      }
 
       await releaseNoticeLock(program.noticeId);
 
@@ -2954,12 +3080,18 @@
       $("#noticeText").value="";
       $("#noticeCharCount").textContent="0 / 500";
       setNoticeEditorEnabled(false);
-      setNoticeLockMessage("送信しました。別の企画を選んで続けて投稿できます。","sent");
-      toast("お知らせを送信しました");
+
+      if(body){
+        setNoticeLockMessage("送信しました。最新情報を更新しました。","sent");
+        toast("最新情報を更新しました");
+      }else{
+        setNoticeLockMessage("削除しました。ホームの最新情報には表示されません。","sent");
+        toast("最新情報から削除しました");
+      }
 
     }catch(error){
       console.error("notice submit failed:",error);
-      setNoticeLockMessage("送信に失敗しました。もう一度お試しください。","locked");
+      setNoticeLockMessage("処理に失敗しました。もう一度お試しください。","locked");
 
       if(lockedNoticeProgramId===program.noticeId){
         setNoticeEditorEnabled(true);
@@ -3340,7 +3472,6 @@
     const body=$("#noticeText").value;
     $("#noticeCharCount").textContent=`${body.length} / 500`;
     $("#submitLiveNotice").disabled=
-      !body.trim() ||
       !lockedNoticeProgramId ||
       lockedNoticeProgramId!==$("#noticeProgramSelect").value;
   });
@@ -3394,25 +3525,20 @@
   }, {passive:false});
 
 // 秘密コマンド：
-  // ヘッダーの「第１１回益芳祭」を7回連続タップすると管理入口が開く。
+  // 「presented by 益芳祭」のうち「益芳祭」だけが隠し入口。
+  // 4秒以内に7回タップ／クリックすると管理入口を開く。
   // 管理画面自体は Firebase Authentication + allowedUsers で保護。
-  let secretTapCount = 0;
-  let secretTapTimer = null;
+  let secretTapTimes = [];
 
   $("#secretAdminTrigger").addEventListener("pointerup", (event)=>{
-    // 右クリック等は除外
     if(event.pointerType === "mouse" && event.button !== 0) return;
 
-    secretTapCount++;
+    const now=Date.now();
+    secretTapTimes=secretTapTimes.filter(time=>now-time<=4000);
+    secretTapTimes.push(now);
 
-    clearTimeout(secretTapTimer);
-    secretTapTimer = setTimeout(()=>{
-      secretTapCount = 0;
-    }, 4000);
-
-    if(secretTapCount >= 7){
-      secretTapCount = 0;
-      clearTimeout(secretTapTimer);
+    if(secretTapTimes.length>=7){
+      secretTapTimes=[];
 
       if(auth.currentUser && allowedUser){
         go("admin");
