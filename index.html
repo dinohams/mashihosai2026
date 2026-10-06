@@ -2028,6 +2028,79 @@
       touch-action:manipulation;
     }
 
+
+    /* ===== Owner latest information management ===== */
+    .owner-latest-card{
+      padding:14px;
+      border-radius:20px;
+      background:#fffefa;
+      border:1px solid #e7ded7;
+      box-shadow:0 6px 18px rgba(88,76,72,.05);
+    }
+
+    .owner-latest-list{
+      display:grid;
+      gap:10px;
+    }
+
+    .owner-latest-item{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:12px;
+      align-items:center;
+      padding:13px;
+      border-radius:16px;
+      background:linear-gradient(135deg,#fffefa,#f8f5f1);
+      border:1px solid #e7ded7;
+    }
+
+    .owner-latest-content small{
+      display:block;
+      color:#8a7a82;
+      font-size:10px;
+      font-weight:900;
+      margin-bottom:2px;
+    }
+
+    .owner-latest-content strong{
+      display:block;
+      color:#526382;
+      font-size:13px;
+      font-weight:900;
+    }
+
+    .owner-latest-content p{
+      margin:6px 0 4px;
+      color:#626a73;
+      font-size:12px;
+      line-height:1.55;
+      white-space:pre-wrap;
+      overflow-wrap:anywhere;
+    }
+
+    .owner-latest-content time{
+      color:#9b9697;
+      font-size:9px;
+      font-weight:800;
+    }
+
+    .owner-latest-delete{
+      border:1px solid #e2c7ce;
+      background:#fbecef;
+      color:#a65f70;
+      border-radius:12px;
+      padding:8px 11px;
+      font-size:11px;
+      font-weight:900;
+    }
+
+    .owner-latest-empty{
+      padding:12px;
+      color:#85858a;
+      font-size:12px;
+      text-align:center;
+    }
+
 </style>
 </head>
 <body>
@@ -2263,6 +2336,16 @@
               <span id="noticeCharCount">0 / 500</span>
               <button id="submitLiveNotice" class="notice-submit-btn" disabled>送信</button>
             </div>
+          </div>
+        </div>
+
+        <div id="ownerLatestInfoPanel" style="display:none">
+          <div class="section-head">
+            <h2>最新情報一覧</h2>
+            <span>オーナー専用</span>
+          </div>
+          <div class="owner-latest-card">
+            <div id="ownerLatestInfoList" class="owner-latest-list"></div>
           </div>
         </div>
 
@@ -2735,8 +2818,14 @@
 
       if(seenPrograms.has(key)) continue;
 
+      // 最初に見つかった最新データで企画を確定。
+      // 本文が空ならホームには出さないが、
+      // その企画の古い投稿が復活することも防ぐ。
       seenPrograms.add(key);
-      latestDocs.push(docSnap);
+
+      if((n.text || "").trim()){
+        latestDocs.push(docSnap);
+      }
     }
 
     if(!latestDocs.length){
@@ -2763,6 +2852,101 @@
     }).join("");
   }
 
+  function getLatestNoticeDocsByProgram(snapshot){
+    const seen=new Set();
+    const latest=[];
+
+    for(const docSnap of snapshot.docs){
+      const n=docSnap.data();
+      const key=n.programId || `${n.programGroup}|${n.programTitle}`;
+
+      if(seen.has(key)) continue;
+      seen.add(key);
+
+      if((n.text || "").trim()){
+        latest.push(docSnap);
+      }
+    }
+
+    return latest;
+  }
+
+  function renderOwnerLatestInfo(snapshot){
+    const panel=$("#ownerLatestInfoPanel");
+    const list=$("#ownerLatestInfoList");
+
+    if(!panel || !list) return;
+
+    if(!isOwner()){
+      panel.style.display="none";
+      list.innerHTML="";
+      return;
+    }
+
+    panel.style.display="block";
+
+    const latestDocs=getLatestNoticeDocsByProgram(snapshot);
+
+    if(!latestDocs.length){
+      list.innerHTML='<div class="owner-latest-empty">現在表示中の最新情報はありません。</div>';
+      return;
+    }
+
+    list.innerHTML=latestDocs.map(docSnap=>{
+      const n=docSnap.data();
+      const programId=n.programId || "";
+
+      return `
+        <article class="owner-latest-item">
+          <div class="owner-latest-content">
+            <small>${escapeHtmlLocal(n.programGroup || "企画")}</small>
+            <strong>${escapeHtmlLocal(n.programTitle || "")}</strong>
+            <p>${escapeHtmlLocal(n.text || "")}</p>
+            <time>${formatNoticeTime(n.createdAt)}</time>
+          </div>
+          <button
+            class="owner-latest-delete"
+            data-program-id="${escapeHtmlLocal(programId)}"
+            data-title="${escapeHtmlLocal(n.programTitle || "")}"
+          >削除</button>
+        </article>
+      `;
+    }).join("");
+
+    $$(".owner-latest-delete").forEach(btn=>{
+      btn.onclick=()=>ownerDeleteLatestInfo(
+        btn.dataset.programId,
+        btn.dataset.title
+      );
+    });
+  }
+
+  async function ownerDeleteLatestInfo(programId,title){
+    if(!isOwner() || !programId) return;
+
+    const ok=confirm(
+      `${title || "この最新情報"}を完全に削除します。\n\n元に戻せません。よろしいですか？`
+    );
+    if(!ok) return;
+
+    try{
+      const snap=await getDocs(collection(db,"liveNotices"));
+      const targets=snap.docs.filter(d=>d.data().programId===programId);
+
+      for(let i=0;i<targets.length;i+=400){
+        const batch=writeBatch(db);
+        targets.slice(i,i+400).forEach(d=>batch.delete(d.ref));
+        await batch.commit();
+      }
+
+      toast("最新情報を削除しました");
+    }catch(error){
+      console.error("owner latest info delete failed:",error);
+      toast("削除に失敗しました");
+    }
+  }
+
+
   const liveNoticeQuery=query(
     collection(db,"liveNotices"),
     orderBy("createdAt","desc"),
@@ -2771,10 +2955,16 @@
 
   onSnapshot(
     liveNoticeQuery,
-    renderLiveNotices,
+    snapshot=>{
+      renderLiveNotices(snapshot);
+      renderOwnerLatestInfo(snapshot);
+    },
     error=>{
       console.error("live notice listener:",error);
       $("#liveNoticeSection").hidden=true;
+      if($("#ownerLatestInfoList")){
+        $("#ownerLatestInfoList").innerHTML='<div class="owner-latest-empty">最新情報を取得できませんでした。</div>';
+      }
     }
   );
 
@@ -3070,8 +3260,18 @@
         // 旧バージョンの重複投稿があれば掃除。
         await removeLegacyDuplicateNotices(program.noticeId);
       }else{
-        // 空欄送信＝この企画のお知らせをホームから完全削除。
-        await removeAllNoticesForProgram(program.noticeId);
+        // 空欄送信＝ホームから非表示。
+        // 実データの完全削除はオーナー専用「最新情報一覧」からのみ行う。
+        await setDoc(doc(db,"liveNotices",program.noticeId),{
+          programId:program.noticeId,
+          programGroup:program.group,
+          programTitle:program.name,
+          text:"",
+          createdAt:serverTimestamp()
+        });
+
+        // 旧ランダムID投稿が残っていても古い情報が復活しないよう、
+        // 固定IDの空データを最新状態として保持する。
       }
 
       await releaseNoticeLock(program.noticeId);
@@ -3085,8 +3285,8 @@
         setNoticeLockMessage("送信しました。最新情報を更新しました。","sent");
         toast("最新情報を更新しました");
       }else{
-        setNoticeLockMessage("削除しました。ホームの最新情報には表示されません。","sent");
-        toast("最新情報から削除しました");
+        setNoticeLockMessage("ホームの最新情報から非表示にしました。","sent");
+        toast("ホームの最新情報から非表示にしました");
       }
 
     }catch(error){
@@ -3659,6 +3859,7 @@
       $("#adminLoggedIn").classList.remove("show");
       $("#voteAdminPanel").style.display="none";
       $("#ownerToolsPanel").style.display="none";
+      $("#ownerLatestInfoPanel").style.display="none";
       $("#ownerMenuCards").style.display="none";
       $("#resetVotesBtn").style.display="none";
       $("#noticeComposerPanel").style.display="none";
@@ -3705,6 +3906,7 @@
       $("#ownerMenuCards").style.display=(owner || isAdmin) ? "contents" : "none";
       $("#voteAdminPanel").style.display=isAdmin ? "block" : "none";
       $("#ownerToolsPanel").style.display=owner ? "block" : "none";
+      $("#ownerLatestInfoPanel").style.display=owner ? "block" : "none";
       $("#resetVotesBtn").style.display=owner ? "inline-block" : "none";
       $("#adminMenuRoleLabel").textContent=staff ? "お知らせ投稿のみ" : "管理機能";
 
