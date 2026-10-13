@@ -2186,6 +2186,30 @@
       padding:10px 12px;
     }
 
+
+    .owner-emergency-reset-card{
+      margin-top:12px;
+      border-color:#e8b6b6;
+      background:#fff8f8;
+    }
+
+    .owner-danger-btn{
+      width:100%;
+      margin-top:8px;
+      border:1px solid #d86c6c;
+      background:#b73737;
+      color:white;
+      padding:11px 12px;
+      border-radius:13px;
+      font-size:12px;
+      font-weight:1000;
+    }
+
+    .owner-danger-btn:disabled{
+      opacity:.55;
+      cursor:wait;
+    }
+
 </style>
 </head>
 <body>
@@ -2507,6 +2531,15 @@
               この端末の投票済み状態を解除
             </button>
             <div id="localVoteResetStatus" class="owner-status">一般来場者としての再テスト用</div>
+          </div>
+
+          <div class="owner-tool-card owner-emergency-reset-card">
+            <h3>🚨 投票以外を完全オールリセット</h3>
+            <p>お知らせ・変更された企画タイトル・紹介文をすべて消し、このv4.2に入っている正式パンフレット内容へ戻します。投票・投票ラウンドには触れません。</p>
+            <button id="resetFestivalContent" class="owner-danger-btn">
+              投票以外をv4.2初期状態に戻す
+            </button>
+            <div id="festivalResetStatus" class="owner-status">緊急時のみ使用してください。</div>
           </div>
         </div>
 
@@ -3119,6 +3152,67 @@
     }[ch]));
   }
 
+  // --------------------------------------------------
+  // 投稿内容の簡易NGワードチェック
+  // 教員端末を生徒へ一時的に渡した場合などのイタズラ対策。
+  // 単純な部分一致だけにはせず、正常語の例外を先に除外する。
+  // --------------------------------------------------
+  const MODERATION_SAFE_PHRASES=[
+    "ウルトラマンコスモス",
+    "うるとらまんこすもす",
+    "うんちく",
+    "ウンチク"
+  ];
+
+  const MODERATION_PATTERNS=[
+    // 性的・下ネタ系
+    {category:"不適切な性的表現", re:/まんこ|マンコ|ちんこ|チンコ|ちんぽ|チンポ|ちんちん|チンチン/},
+    {category:"不適切な性的表現", re:/ペニス|陰茎|膣|ヴァギナ|アナル|オナニー|自慰|射精|精液/},
+    {category:"不適切な性的表現", re:/フェラ|クンニ|セックス|性交|レイプ|強姦|おっぱい|乳首|巨乳|貧乳/},
+    {category:"不適切な下ネタ表現", re:/うんこ|ウンコ|うんち|ウンチ|糞便/},
+
+    // グロ・残虐系
+    {category:"過度に残虐な表現", re:/死ね|しね|殺す|ころす|殺害|惨殺|虐殺/},
+    {category:"過度に残虐な表現", re:/死体|生首|内臓|臓器|切断|血まみれ|血だらけ|バラバラ死体/},
+    {category:"過度に残虐な表現", re:/拷問|グロ画像|グロ動画|グロテスク/}
+  ];
+
+  function normalizeModerationText(value){
+    let normalized=String(value ?? "").normalize("NFKC");
+
+    // 正常語を先に取り除き、内部の偶然の文字列一致を無視する。
+    for(const phrase of MODERATION_SAFE_PHRASES){
+      normalized=normalized.split(phrase.normalize("NFKC")).join("");
+    }
+
+    // スペース・句読点・記号を挟んだ回避もある程度検知。
+    return normalized
+      .replace(/[\s\u3000_\-‐‑‒–—―・･.,，。、!！?？'"“”‘’()（）[\]【】{}<>＜＞/\\|:：;；~〜～*＊+＋=＝]+/g,"")
+      .toLowerCase();
+  }
+
+  function checkModeration(...values){
+    const normalized=normalizeModerationText(values.join("\n"));
+
+    for(const rule of MODERATION_PATTERNS){
+      if(rule.re.test(normalized)){
+        return {
+          ok:false,
+          category:rule.category
+        };
+      }
+    }
+
+    return {ok:true,category:""};
+  }
+
+  function moderationMessage(result){
+    return result?.category
+      ? `送信できません。${result.category}が含まれています。内容を見直してください。`
+      : "送信できません。不適切な表現が含まれています。内容を見直してください。";
+  }
+
+
   function formatNoticeTime(timestamp){
     if(!timestamp?.toDate) return "送信中";
     const d=timestamp.toDate();
@@ -3488,6 +3582,13 @@
       return;
     }
 
+    const moderation=checkModeration(title,body);
+    if(!moderation.ok){
+      setDescriptionLockMessage(moderationMessage(moderation),"locked");
+      toast("不適切な表現があるため更新できません");
+      return;
+    }
+
     if(lockedDescriptionProgramId!==program.noticeId){
       setDescriptionLockMessage("編集権限がありません。企画を選び直してください。","locked");
       setDescriptionEditorEnabled(false);
@@ -3509,6 +3610,7 @@
       await releaseDescriptionLock(program.noticeId);
 
       $("#descriptionProgramSelect").value="";
+      $("#descriptionTitle").value="";
       $("#descriptionText").value="";
       $("#descriptionCharCount").textContent="タイトル 0 / 160　紹介文 0 / 1200";
       setDescriptionEditorEnabled(false);
@@ -3748,6 +3850,15 @@
     const body=$("#noticeText").value.trim();
 
     if(!program) return;
+
+    if(body){
+      const moderation=checkModeration(body);
+      if(!moderation.ok){
+        setNoticeLockMessage(moderationMessage(moderation),"locked");
+        toast("不適切な表現があるため送信できません");
+        return;
+      }
+    }
 
     if(lockedNoticeProgramId!==program.noticeId){
       setNoticeLockMessage("編集権限がありません。企画を選び直してください。","locked");
@@ -4170,6 +4281,70 @@
     }
   }
 
+  async function resetFestivalContentToBaseline(){
+    if(!isOwner()) return;
+
+    const firstConfirm=confirm(
+      "投票以外の情報を完全オールリセットします。\n\n"
+      + "・すべてのお知らせを削除\n"
+      + "・編集された企画タイトルを初期状態へ戻す\n"
+      + "・編集された紹介文を初期状態へ戻す\n"
+      + "・投票と投票ラウンドはそのまま保持\n\n"
+      + "続行しますか？"
+    );
+    if(!firstConfirm) return;
+
+    const secondConfirm=confirm(
+      "最終確認です。\n\n現在の編集内容は元に戻せません。\n"
+      + "本当にv4.2の初期状態へ戻しますか？"
+    );
+    if(!secondConfirm) return;
+
+    const button=$("#resetFestivalContent");
+    const status=$("#festivalResetStatus");
+
+    if(button) button.disabled=true;
+    if(status){
+      status.textContent="リセットしています…";
+      status.classList.remove("active");
+    }
+
+    try{
+      await runTransaction(db,async transaction=>{
+        const snapshot=await transaction.get(PUBLIC_STATE_REF);
+        const current=snapshot.exists() ? snapshot.data() : {};
+        const votingRound=Number.isInteger(current?.votingRound) && current.votingRound>=1
+          ? current.votingRound
+          : currentVotingRound;
+
+        transaction.set(PUBLIC_STATE_REF,{
+          notices:{},
+          contents:{},
+          votingRound,
+          updatedAt:Timestamp.now()
+        });
+      });
+
+      if(status){
+        status.textContent="完了しました。投票以外をv4.2初期状態へ戻しました。";
+        status.classList.add("active");
+      }
+
+      toast("投票以外を初期状態へ戻しました");
+    }catch(error){
+      console.error("festival content reset failed:",error);
+
+      if(status){
+        status.textContent="リセットに失敗しました。通信状況を確認してください。";
+        status.classList.remove("active");
+      }
+
+      toast("オールリセットに失敗しました");
+    }finally{
+      if(button) button.disabled=false;
+    }
+  }
+
   async function advanceVotingRound(){
     if(!isOwner()) throw new Error("OWNER_ONLY");
 
@@ -4246,6 +4421,7 @@
   $("#applySimulatedTime").onclick=applySimulatedTime;
   $("#clearSimulatedTime").onclick=clearSimulatedTime;
   $("#resetLocalVoteState").onclick=resetLocalVoteState;
+  $("#resetFestivalContent").onclick=resetFestivalContentToBaseline;
 
   $("#noticeAdminCard").onclick=openNoticeComposer;
   $("#closeNoticeComposer").onclick=closeNoticeComposer;
