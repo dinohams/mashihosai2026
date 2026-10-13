@@ -2361,10 +2361,49 @@
               <small>企画を選んで投稿</small>
             </button>
 
+            <button class="admin-card admin-card-button" id="descriptionAdminCard">
+              <span class="icon">✏️</span>
+              <b>紹介文編集</b>
+              <small>企画の紹介文を更新</small>
+            </button>
+
             <div id="ownerMenuCards" class="owner-menu-cards" style="display:none">
               <div class="admin-card"><span class="icon">🎪</span><b>企画</b><small>企画情報・混雑状況</small></div>
               <div class="admin-card"><span class="icon">🕒</span><b>ステージ</b><small>時間・進行状況</small></div>
               <div class="admin-card"><span class="icon">👥</span><b>教員</b><small>権限・利用許可</small></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="descriptionEditorPanel" style="display:none">
+          <div class="section-head">
+            <h2>紹介文編集</h2>
+            <button id="closeDescriptionEditor" class="admin-refresh">戻る</button>
+          </div>
+
+          <div class="notice-composer-card">
+            <label class="notice-form-label" for="descriptionProgramSelect">企画を選ぶ</label>
+            <select id="descriptionProgramSelect" class="notice-program-select">
+              <option value="">企画を選択してください</option>
+            </select>
+
+            <div id="descriptionLockStatus" class="notice-lock-status">
+              企画を選ぶと編集できます。
+            </div>
+
+            <label class="notice-form-label" for="descriptionText">現在の紹介文</label>
+            <textarea
+              id="descriptionText"
+              class="notice-textarea"
+              rows="8"
+              maxlength="1200"
+              placeholder="企画の紹介文を入力してください。"
+              disabled
+            ></textarea>
+
+            <div class="notice-compose-bottom">
+              <span id="descriptionCharCount">0 / 1200</span>
+              <button id="submitDescription" class="notice-submit-btn" disabled>更新</button>
             </div>
           </div>
         </div>
@@ -2777,6 +2816,11 @@
   let noticeLockRenewTimer=null;
   let noticeSelectionToken=0;
 
+  const programDescriptionOverrides=new Map();
+  let lockedDescriptionProgramId=null;
+  let descriptionLockRenewTimer=null;
+  let descriptionSelectionToken=0;
+
   const voteCandidates=[
     {id:"class-1-1",group:"1年1組",title:"アクセサリーを作ろう",icon:"💎"},
     {id:"class-1-2",group:"1年2組",title:"撃って！撮って！1-2ワールド！",icon:"📸"},
@@ -2811,6 +2855,23 @@
     return isOwner() || allowedUser?.role==="staff" || allowedUser?.role==="admin";
   }
 
+  function canEditDescriptions(){
+    return isOwner() || allowedUser?.role==="staff" || allowedUser?.role==="admin";
+  }
+
+  function programIdFor(program){
+    const item=noticePrograms.find(p=>p===program || (p.group===program.group && p.name===program.name));
+    return item?.noticeId || "";
+  }
+
+  function effectiveProgramDescription(program){
+    const id=programIdFor(program);
+    return id && programDescriptionOverrides.has(id)
+      ? programDescriptionOverrides.get(id)
+      : (program.desc || "");
+  }
+
+
 
   const scheduleItems=[
     {start:"10:00",end:"10:15",display:"10:00〜",title:"体育館 開館",place:"体育館"},
@@ -2827,10 +2888,18 @@
   ];
 
   function go(view){
-    if(view!=="admin" && lockedNoticeProgramId){
-      noticeSelectionToken++;
-      releaseNoticeLock();
+    if(view!=="admin"){
+      if(lockedNoticeProgramId){
+        noticeSelectionToken++;
+        releaseNoticeLock();
+      }
+      if(lockedDescriptionProgramId){
+        descriptionSelectionToken++;
+        releaseDescriptionLock();
+      }
+
       $("#noticeComposerPanel").style.display="none";
+      $("#descriptionEditorPanel").style.display="none";
       $("#adminMenuSection").style.display="block";
     }
 
@@ -2865,9 +2934,30 @@
           <div class="program-icon">${p.icon}</div>
           <div><small>${p.group}</small><h3>${p.name}</h3><small>📍 ${p.place}</small></div>
         </div>
-        ${p.desc ? `<p>${p.desc}</p>` : ""}
+        ${effectiveProgramDescription(p) ? `<p>${escapeHtmlLocal(effectiveProgramDescription(p))}</p>` : ""}
       </div>`).join("");
   }
+
+
+  onSnapshot(
+    collection(db,"programDescriptions"),
+    snapshot=>{
+      programDescriptionOverrides.clear();
+
+      snapshot.forEach(docSnap=>{
+        const data=docSnap.data();
+        if(typeof data.text==="string"){
+          programDescriptionOverrides.set(docSnap.id,data.text);
+        }
+      });
+
+      renderPrograms();
+      renderRecommendation();
+    },
+    error=>{
+      console.error("program description listener:",error);
+    }
+  );
 
   function renderSchedule(){
     $("#timeline").innerHTML=scheduleItems.map(e=>`
@@ -3094,6 +3184,297 @@
     el.className=`notice-lock-status ${state}`.trim();
     el.textContent=message;
   }
+
+  function populateDescriptionProgramSelect(){
+    const select=$("#descriptionProgramSelect");
+    if(!select) return;
+
+    select.innerHTML=
+      '<option value="">企画を選択してください</option>'+
+      noticePrograms.map(program=>`
+        <option value="${program.noticeId}">
+          ${escapeHtmlLocal(program.group)}｜${escapeHtmlLocal(program.name)}
+        </option>
+      `).join("");
+  }
+
+  function selectedDescriptionProgram(){
+    const id=$("#descriptionProgramSelect")?.value;
+    return noticePrograms.find(program=>program.noticeId===id) || null;
+  }
+
+  function setDescriptionEditorEnabled(enabled){
+    $("#descriptionText").disabled=!enabled;
+    $("#submitDescription").disabled=!enabled;
+  }
+
+  function setDescriptionLockMessage(message,state=""){
+    const el=$("#descriptionLockStatus");
+    el.className=`notice-lock-status ${state}`.trim();
+    el.textContent=message;
+  }
+
+  function clearDescriptionRenewTimer(){
+    if(descriptionLockRenewTimer){
+      clearInterval(descriptionLockRenewTimer);
+      descriptionLockRenewTimer=null;
+    }
+  }
+
+  async function releaseDescriptionLock(programId=lockedDescriptionProgramId){
+    if(!programId) return;
+
+    clearDescriptionRenewTimer();
+    const ref=doc(db,"programDescriptionLocks",programId);
+
+    try{
+      await runTransaction(db,async transaction=>{
+        const snap=await transaction.get(ref);
+        if(!snap.exists()) return;
+
+        const data=snap.data();
+        if(data.sessionId!==editorSessionId) return;
+
+        transaction.set(ref,{
+          programId,
+          sessionId:editorSessionId,
+          expiresAt:Timestamp.fromMillis(Date.now()-1000),
+          updatedAt:serverTimestamp()
+        });
+      });
+    }catch(error){
+      console.warn("description lock release failed:",error);
+    }
+
+    if(lockedDescriptionProgramId===programId){
+      lockedDescriptionProgramId=null;
+    }
+  }
+
+  function handleDescriptionLockLost(){
+    clearDescriptionRenewTimer();
+    lockedDescriptionProgramId=null;
+    setDescriptionEditorEnabled(false);
+    setDescriptionLockMessage("編集権限が切れました。企画を選び直してください。","locked");
+  }
+
+  async function renewDescriptionLock(){
+    const programId=lockedDescriptionProgramId;
+    if(!programId) return;
+
+    const ref=doc(db,"programDescriptionLocks",programId);
+
+    try{
+      await runTransaction(db,async transaction=>{
+        const snap=await transaction.get(ref);
+
+        if(!snap.exists() || snap.data().sessionId!==editorSessionId){
+          throw new Error("LOCK_LOST");
+        }
+
+        transaction.set(ref,{
+          programId,
+          sessionId:editorSessionId,
+          expiresAt:Timestamp.fromMillis(Date.now()+NOTICE_LOCK_MS),
+          updatedAt:serverTimestamp()
+        });
+      });
+    }catch(error){
+      console.warn("description lock renew failed:",error);
+      handleDescriptionLockLost();
+    }
+  }
+
+  function startDescriptionLockRenewal(){
+    clearDescriptionRenewTimer();
+    descriptionLockRenewTimer=setInterval(renewDescriptionLock,NOTICE_RENEW_MS);
+  }
+
+  async function acquireDescriptionLock(programId,selectionToken){
+    const ref=doc(db,"programDescriptionLocks",programId);
+
+    try{
+      await runTransaction(db,async transaction=>{
+        const snap=await transaction.get(ref);
+        const now=Date.now();
+
+        if(snap.exists()){
+          const data=snap.data();
+          const expiresAt=data.expiresAt?.toMillis ? data.expiresAt.toMillis() : 0;
+          const active=expiresAt>now;
+
+          if(active && data.sessionId!==editorSessionId){
+            throw new Error("LOCKED_BY_OTHER");
+          }
+        }
+
+        transaction.set(ref,{
+          programId,
+          sessionId:editorSessionId,
+          expiresAt:Timestamp.fromMillis(now+NOTICE_LOCK_MS),
+          updatedAt:serverTimestamp()
+        });
+      });
+
+      if(selectionToken!==descriptionSelectionToken){
+        await releaseDescriptionLock(programId);
+        return false;
+      }
+
+      lockedDescriptionProgramId=programId;
+      startDescriptionLockRenewal();
+      return true;
+
+    }catch(error){
+      if(error?.message==="LOCKED_BY_OTHER"){
+        return false;
+      }
+      console.error("description lock acquire failed:",error);
+      throw error;
+    }
+  }
+
+  async function loadCurrentProgramDescription(program){
+    const snap=await getDoc(doc(db,"programDescriptions",program.noticeId));
+
+    if(snap.exists() && typeof snap.data().text==="string"){
+      return snap.data().text;
+    }
+
+    return program.desc || "";
+  }
+
+  async function handleDescriptionProgramChange(){
+    const token=++descriptionSelectionToken;
+    const nextProgram=selectedDescriptionProgram();
+
+    $("#descriptionText").value="";
+    $("#descriptionCharCount").textContent="0 / 1200";
+    setDescriptionEditorEnabled(false);
+
+    if(lockedDescriptionProgramId){
+      await releaseDescriptionLock();
+    }
+
+    if(token!==descriptionSelectionToken) return;
+
+    if(!nextProgram){
+      setDescriptionLockMessage("企画を選ぶと編集できます。");
+      return;
+    }
+
+    setDescriptionLockMessage("現在の紹介文を読み込んでいます…","checking");
+
+    try{
+      const currentText=await loadCurrentProgramDescription(nextProgram);
+
+      if(token!==descriptionSelectionToken) return;
+
+      $("#descriptionText").value=currentText;
+      $("#descriptionCharCount").textContent=`${currentText.length} / 1200`;
+
+      setDescriptionLockMessage("編集できるか確認しています…","checking");
+
+      const acquired=await acquireDescriptionLock(nextProgram.noticeId,token);
+
+      if(token!==descriptionSelectionToken) return;
+
+      if(!acquired){
+        setDescriptionEditorEnabled(false);
+        setDescriptionLockMessage(
+          "ほかの先生が編集中のため編集できません。現在の紹介文を表示しています。",
+          "locked"
+        );
+        return;
+      }
+
+      setDescriptionLockMessage(
+        `${nextProgram.group}「${nextProgram.name}」の紹介文を編集中です。`,
+        "editing"
+      );
+      setDescriptionEditorEnabled(true);
+      $("#descriptionText").focus();
+
+    }catch(error){
+      console.error(error);
+      setDescriptionLockMessage(
+        "紹介文を読み込めませんでした。通信状況を確認して選び直してください。",
+        "locked"
+      );
+    }
+  }
+
+  async function submitDescription(){
+    const program=selectedDescriptionProgram();
+    const body=$("#descriptionText").value;
+
+    if(!program) return;
+
+    if(lockedDescriptionProgramId!==program.noticeId){
+      setDescriptionLockMessage("編集権限がありません。企画を選び直してください。","locked");
+      setDescriptionEditorEnabled(false);
+      return;
+    }
+
+    $("#submitDescription").disabled=true;
+    setDescriptionLockMessage("更新しています…","checking");
+
+    try{
+      await setDoc(doc(db,"programDescriptions",program.noticeId),{
+        programId:program.noticeId,
+        programGroup:program.group,
+        programTitle:program.name,
+        text:body,
+        updatedAt:serverTimestamp()
+      });
+
+      await releaseDescriptionLock(program.noticeId);
+
+      $("#descriptionProgramSelect").value="";
+      $("#descriptionText").value="";
+      $("#descriptionCharCount").textContent="0 / 1200";
+      setDescriptionEditorEnabled(false);
+      setDescriptionLockMessage("紹介文を更新しました。","sent");
+      toast("紹介文を更新しました");
+
+    }catch(error){
+      console.error("description submit failed:",error);
+      setDescriptionLockMessage("更新に失敗しました。もう一度お試しください。","locked");
+
+      if(lockedDescriptionProgramId===program.noticeId){
+        setDescriptionEditorEnabled(true);
+      }
+    }
+  }
+
+  function openDescriptionEditor(){
+    if(!canEditDescriptions()) return;
+
+    $("#descriptionEditorPanel").style.display="block";
+    $("#noticeComposerPanel").style.display="none";
+    $("#adminMenuSection").style.display="none";
+
+    $("#descriptionProgramSelect").value="";
+    $("#descriptionText").value="";
+    $("#descriptionCharCount").textContent="0 / 1200";
+    setDescriptionEditorEnabled(false);
+    setDescriptionLockMessage("企画を選ぶと編集できます。");
+
+    $("#descriptionEditorPanel").scrollIntoView({behavior:"smooth",block:"start"});
+  }
+
+  async function closeDescriptionEditor(){
+    descriptionSelectionToken++;
+    await releaseDescriptionLock();
+
+    $("#descriptionEditorPanel").style.display="none";
+    $("#adminMenuSection").style.display="block";
+    $("#descriptionProgramSelect").value="";
+    $("#descriptionText").value="";
+    $("#descriptionCharCount").textContent="0 / 1200";
+    setDescriptionEditorEnabled(false);
+  }
+
 
   async function getLatestNoticeText(programId){
     // 現行の固定ドキュメントを最優先。
@@ -3399,6 +3780,7 @@
     if(!canPostLiveNotices()) return;
 
     $("#noticeComposerPanel").style.display="block";
+    $("#descriptionEditorPanel").style.display="none";
     $("#adminMenuSection").style.display="none";
     $("#noticeProgramSelect").value="";
     $("#noticeText").value="";
@@ -3442,7 +3824,7 @@
         <small>${escapeHtmlLocal(pick.group)}</small>
         <h3>${escapeHtmlLocal(pick.name)}</h3>
         <div class="recommend-place">📍 ${escapeHtmlLocal(pick.place)}</div>
-        ${pick.desc ? `<p>${escapeHtmlLocal(pick.desc)}</p>` : ""}
+        ${effectiveProgramDescription(pick) ? `<p>${escapeHtmlLocal(effectiveProgramDescription(pick))}</p>` : ""}
       </div>
     `;
   }
@@ -3764,6 +4146,21 @@
   $("#closeNoticeComposer").onclick=closeNoticeComposer;
   $("#noticeProgramSelect").addEventListener("change",handleNoticeProgramChange);
 
+  $("#descriptionAdminCard").onclick=openDescriptionEditor;
+  $("#closeDescriptionEditor").onclick=closeDescriptionEditor;
+  $("#descriptionProgramSelect").addEventListener("change",handleDescriptionProgramChange);
+
+  $("#descriptionText").addEventListener("input",()=>{
+    const body=$("#descriptionText").value;
+    $("#descriptionCharCount").textContent=`${body.length} / 1200`;
+    $("#submitDescription").disabled=
+      !lockedDescriptionProgramId ||
+      lockedDescriptionProgramId!==$("#descriptionProgramSelect").value;
+  });
+
+  $("#submitDescription").onclick=submitDescription;
+
+
   $("#noticeText").addEventListener("input",()=>{
     const body=$("#noticeText").value;
     $("#noticeCharCount").textContent=`${body.length} / 500`;
@@ -3931,7 +4328,9 @@
 
   $("#logoutBtn").onclick=async()=>{
     noticeSelectionToken++;
+    descriptionSelectionToken++;
     await releaseNoticeLock();
+    await releaseDescriptionLock();
     await signOut(auth);
     go("home");
     toast("ログアウトしました");
@@ -3959,6 +4358,7 @@
       $("#ownerMenuCards").style.display="none";
       $("#resetVotesBtn").style.display="none";
       $("#noticeComposerPanel").style.display="none";
+      $("#descriptionEditorPanel").style.display="none";
       $("#adminMenuSection").style.display="block";
       renderNowPlaying();
       renderVotePage();
@@ -4007,6 +4407,7 @@
       $("#adminMenuRoleLabel").textContent=staff ? "お知らせ投稿のみ" : "管理機能";
 
       $("#noticeComposerPanel").style.display="none";
+      $("#descriptionEditorPanel").style.display="none";
       $("#adminMenuSection").style.display="block";
 
       syncOwnerSimulationUI();
@@ -4030,6 +4431,7 @@
   renderVotePage();
   renderNowPlaying();
   populateNoticeProgramSelect();
+  populateDescriptionProgramSelect();
 
   // 毎日、現在時刻に合わせて自動更新
   setInterval(renderNowPlaying,15000);
