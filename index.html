@@ -2210,6 +2210,28 @@
       cursor:wait;
     }
 
+
+    .owner-login-lock-card{
+      margin-top:12px;
+    }
+
+    .owner-login-lock-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:9px;
+    }
+
+    .owner-lock-refresh-btn,
+    .owner-unlock-btn{
+      flex:1 1 180px;
+    }
+
+    .owner-unlock-btn:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+    }
+
 </style>
 </head>
 <body>
@@ -2368,7 +2390,7 @@
           <p>文化祭専用のIDとパスワードを入力してください。</p>
 
           <label class="login-label" for="teacherId">ID</label>
-          <input class="login-input" id="teacherId" type="text" autocomplete="username" placeholder="teacher01">
+          <input class="login-input" id="teacherId" type="text" autocomplete="username">
 
           <label class="login-label" for="teacherPassword">パスワード</label>
           <input class="login-input" id="teacherPassword" type="password" autocomplete="current-password" placeholder="パスワード">
@@ -2541,6 +2563,16 @@
             </button>
             <div id="festivalResetStatus" class="owner-status">緊急時のみ使用してください。</div>
           </div>
+
+          <div class="owner-tool-card owner-login-lock-card">
+            <h3>🔐 教員ログインロック管理</h3>
+            <p>教員IDは認証を5回連続で失敗するとロックされます。ロック解除はオーナーだけが実行できます。</p>
+            <div id="teacherLoginLockStatus" class="owner-status">状態を確認しています…</div>
+            <div class="owner-login-lock-actions">
+              <button id="refreshTeacherLoginLock" class="ghost owner-lock-refresh-btn">状態を更新</button>
+              <button id="unlockTeacherLogin" class="admin-reset owner-unlock-btn" disabled>教員ログインのロックを解除</button>
+            </div>
+          </div>
         </div>
 
         <div id="voteAdminPanel" style="display:none">
@@ -2575,7 +2607,7 @@
     <p>文化祭専用のIDとパスワードを入力してください。</p>
 
     <label class="login-label" for="dialogTeacherId">ID</label>
-    <input class="login-input" id="dialogTeacherId" type="text" autocomplete="username" placeholder="teacher01">
+    <input class="login-input" id="dialogTeacherId" type="text" autocomplete="username">
 
     <label class="login-label" for="dialogTeacherPassword">パスワード</label>
     <input class="login-input" id="dialogTeacherPassword" type="password" autocomplete="current-password" placeholder="パスワード">
@@ -4422,6 +4454,8 @@
   $("#clearSimulatedTime").onclick=clearSimulatedTime;
   $("#resetLocalVoteState").onclick=resetLocalVoteState;
   $("#resetFestivalContent").onclick=resetFestivalContentToBaseline;
+  $("#refreshTeacherLoginLock").onclick=loadTeacherLoginLockStatus;
+  $("#unlockTeacherLogin").onclick=unlockTeacherLogin;
 
   $("#noticeAdminCard").onclick=openNoticeComposer;
   $("#closeNoticeComposer").onclick=closeNoticeComposer;
@@ -4533,11 +4567,152 @@
   $("#dialogClose").onclick=()=>$("#loginDialog").close();
 
   const TEACHER_AUTH_DOMAIN="mashihosai.local";
+  const LOCKABLE_TEACHER_ID="teacher1017";
+  const MAX_TEACHER_LOGIN_FAILURES=5;
 
   function teacherIdToEmail(id){
     const normalized=(id||"").trim().toLowerCase().replace(/[^a-z0-9_-]/g,"");
     return normalized ? `${normalized}@${TEACHER_AUTH_DOMAIN}` : "";
   }
+
+  function normalizeTeacherId(id){
+    return (id||"").trim().toLowerCase().replace(/[^a-z0-9_-]/g,"");
+  }
+
+  function teacherLoginLockRef(){
+    return doc(db,"loginLocks",LOCKABLE_TEACHER_ID);
+  }
+
+  async function getTeacherLoginLock(){
+    const snap=await getDoc(teacherLoginLockRef());
+
+    if(!snap.exists()){
+      return {
+        loginId:LOCKABLE_TEACHER_ID,
+        attempts:0,
+        locked:false
+      };
+    }
+
+    const data=snap.data() || {};
+    return {
+      loginId:LOCKABLE_TEACHER_ID,
+      attempts:Number.isInteger(data.attempts) ? data.attempts : 0,
+      locked:data.locked===true
+    };
+  }
+
+  async function registerTeacherLoginFailure(loginId){
+    if(loginId!==LOCKABLE_TEACHER_ID){
+      return {attempts:0,locked:false,tracked:false};
+    }
+
+    let result={attempts:0,locked:false,tracked:true};
+
+    await runTransaction(db,async transaction=>{
+      const ref=teacherLoginLockRef();
+      const snap=await transaction.get(ref);
+
+      const current=snap.exists() ? snap.data() : {};
+      const attempts=Number.isInteger(current.attempts) ? current.attempts : 0;
+      const alreadyLocked=current.locked===true;
+
+      if(alreadyLocked){
+        result={
+          attempts:Math.max(attempts,MAX_TEACHER_LOGIN_FAILURES),
+          locked:true,
+          tracked:true
+        };
+        return;
+      }
+
+      const nextAttempts=Math.min(attempts+1,MAX_TEACHER_LOGIN_FAILURES);
+      const locked=nextAttempts>=MAX_TEACHER_LOGIN_FAILURES;
+
+      transaction.set(ref,{
+        loginId:LOCKABLE_TEACHER_ID,
+        attempts:nextAttempts,
+        locked,
+        updatedAt:serverTimestamp()
+      });
+
+      result={
+        attempts:nextAttempts,
+        locked,
+        tracked:true
+      };
+    });
+
+    return result;
+  }
+
+  async function resetTeacherLoginFailuresAfterSuccess(loginId){
+    if(loginId!==LOCKABLE_TEACHER_ID) return;
+
+    try{
+      const lock=await getTeacherLoginLock();
+
+      // 5回到達済みのロックはオーナー以外解除できない。
+      if(lock.locked) return;
+
+      await setDoc(teacherLoginLockRef(),{
+        loginId:LOCKABLE_TEACHER_ID,
+        attempts:0,
+        locked:false,
+        updatedAt:serverTimestamp()
+      });
+    }catch(error){
+      console.warn("login failure counter reset failed:",error);
+    }
+  }
+
+  async function loadTeacherLoginLockStatus(){
+    const status=$("#teacherLoginLockStatus");
+    const unlock=$("#unlockTeacherLogin");
+
+    if(!status || !unlock || !isOwner()) return;
+
+    status.textContent="状態を確認しています…";
+    unlock.disabled=true;
+
+    try{
+      const lock=await getTeacherLoginLock();
+
+      if(lock.locked){
+        status.textContent=`ロック中｜失敗 ${lock.attempts} / ${MAX_TEACHER_LOGIN_FAILURES} 回`;
+        status.classList.add("active");
+        unlock.disabled=false;
+      }else{
+        status.textContent=`利用可能｜連続失敗 ${lock.attempts} / ${MAX_TEACHER_LOGIN_FAILURES} 回`;
+        status.classList.remove("active");
+        unlock.disabled=true;
+      }
+    }catch(error){
+      console.error("login lock status failed:",error);
+      status.textContent="ロック状態を取得できませんでした。";
+      status.classList.remove("active");
+      unlock.disabled=true;
+    }
+  }
+
+  async function unlockTeacherLogin(){
+    if(!isOwner()) return;
+
+    const ok=confirm(
+      "教員ログインのロックと失敗回数を解除します。\n\nよろしいですか？"
+    );
+    if(!ok) return;
+
+    try{
+      await deleteDoc(teacherLoginLockRef());
+      await loadTeacherLoginLockStatus();
+      toast("教員ログインのロックを解除しました");
+    }catch(error){
+      console.error("unlock teacher login failed:",error);
+      toast("ロック解除に失敗しました");
+    }
+  }
+
 
   function authErrorMessage(error){
     const code=error?.code || "";
@@ -4569,7 +4744,7 @@
   }
 
   async function teacherLogin(idEl,passwordEl,statusEl){
-    const id=(idEl.value||"").trim();
+    const id=normalizeTeacherId(idEl.value);
     const password=passwordEl.value||"";
     const email=teacherIdToEmail(id);
 
@@ -4581,16 +4756,66 @@
       return;
     }
 
-    statusEl.textContent="ログインしています…";
+    // 共有教員IDは、認証前に中央ロック状態を確認。
+    if(id===LOCKABLE_TEACHER_ID){
+      try{
+        const lock=await getTeacherLoginLock();
 
+        if(lock.locked){
+          enterAdminAfterLogin=false;
+          statusEl.className="status bad";
+          statusEl.textContent="この教員IDはロックされています。オーナーに解除を依頼してください。";
+          return;
+        }
+      }catch(error){
+        console.error("login lock check failed:",error);
+        enterAdminAfterLogin=false;
+        statusEl.className="status bad";
+        statusEl.textContent="ログイン状態を確認できません。通信状況を確認してください。";
+        return;
+      }
+    }
+
+    statusEl.textContent="ログインしています…";
     enterAdminAfterLogin=true;
 
     try{
       await signInWithEmailAndPassword(auth,email,password);
       passwordEl.value="";
+
+      // 正常ログインできた時だけ「連続失敗」を0へ戻す。
+      await resetTeacherLoginFailuresAfterSuccess(id);
+
     }catch(e){
       enterAdminAfterLogin=false;
       console.error(e);
+
+      const credentialFailure=
+        e?.code==="auth/invalid-credential" ||
+        e?.code==="auth/wrong-password" ||
+        e?.code==="auth/user-not-found" ||
+        e?.code==="auth/invalid-login-credentials";
+
+      if(credentialFailure && id===LOCKABLE_TEACHER_ID){
+        try{
+          const result=await registerTeacherLoginFailure(id);
+
+          statusEl.className="status bad";
+
+          if(result.locked){
+            statusEl.textContent=
+              `認証に${MAX_TEACHER_LOGIN_FAILURES}回連続で失敗したため、この教員IDをロックしました。オーナーに解除を依頼してください。`;
+          }else{
+            const remaining=MAX_TEACHER_LOGIN_FAILURES-result.attempts;
+            statusEl.textContent=
+              `IDまたはパスワードが違います。あと${remaining}回失敗すると教員IDがロックされます。`;
+          }
+          return;
+        }catch(lockError){
+          console.error("login failure count failed:",lockError);
+        }
+      }
+
       statusEl.className="status bad";
       statusEl.textContent=authErrorMessage(e);
     }
@@ -4709,6 +4934,7 @@
       renderVotePage();
       renderOwnerLatestInfo();
 
+      if(owner) await loadTeacherLoginLockStatus();
       if(isAdmin) await loadVoteResults();
 
       // このページで「ログイン」操作をした直後だけ管理画面へ直行。
