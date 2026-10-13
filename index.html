@@ -2175,6 +2175,17 @@
       margin-top:2px;
     }
 
+
+    .owner-vote-reset-card{
+      margin-top:12px;
+    }
+
+    .owner-local-vote-reset{
+      margin-top:8px;
+      width:100%;
+      padding:10px 12px;
+    }
+
 </style>
 </head>
 <body>
@@ -2488,6 +2499,15 @@
             <button id="clearSimulatedTime" class="ghost owner-clear-btn">現在時刻に戻す</button>
             <div id="simulatedTimeStatus" class="owner-status">現在時刻で動作中</div>
           </div>
+
+          <div class="owner-tool-card owner-vote-reset-card">
+            <h3>🗳️ この端末の投票テストをやり直す</h3>
+            <p>この端末に保存された「投票済み」状態だけを解除します。Firestoreに送信済みの票は残ります。</p>
+            <button id="resetLocalVoteState" class="admin-reset owner-local-vote-reset">
+              この端末の投票済み状態を解除
+            </button>
+            <div id="localVoteResetStatus" class="owner-status">一般来場者としての再テスト用</div>
+          </div>
         </div>
 
         <div id="voteAdminPanel" style="display:none">
@@ -2571,6 +2591,10 @@
   const $$=s=>[...document.querySelectorAll(s)];
   let allowedUser=null;
   let programCategory="すべて";
+
+  // trueになるのは、このページ上でログイン操作を実行した瞬間だけ。
+  // ページ再読み込み後は必ずfalseに戻るため、自動で管理画面へは移動しない。
+  let enterAdminAfterLogin=false;
 
   const notices=[
     {important:true,title:"文化祭アプリ制作中",text:"現在は仮データで表示しています。正式な企画・校内図に順次差し替えます。"},
@@ -3944,6 +3968,32 @@
     }
   }
 
+  function resetLocalVoteState(){
+    if(!isOwner()) return;
+
+    const hadVote=
+      localStorage.getItem("mashihosai2026_vote_complete") ||
+      localStorage.getItem("mashihosai2026_vote_device_id");
+
+    // 投票済みフラグだけでなく端末用deviceIdも再発行させる。
+    // Firestoreに残っている以前の投票ドキュメントは削除しない。
+    localStorage.removeItem("mashihosai2026_vote_complete");
+    localStorage.removeItem("mashihosai2026_vote_device_id");
+
+    const status=$("#localVoteResetStatus");
+    if(status){
+      status.textContent=hadVote
+        ? "解除しました。ログアウト後、一般来場者として再び投票できます。"
+        : "この端末には投票済み状態がありません。";
+      status.classList.add("active");
+    }
+
+    toast(hadVote
+      ? "この端末の投票済み状態を解除しました"
+      : "投票済み状態はありません"
+    );
+  }
+
   function renderVotePage(){
     const stored=isOwner() ? null : getStoredVote();
     const list=$("#voteCandidates");
@@ -4129,6 +4179,7 @@
   $("#resetVotesBtn").onclick=resetAllVotes;
   $("#applySimulatedTime").onclick=applySimulatedTime;
   $("#clearSimulatedTime").onclick=clearSimulatedTime;
+  $("#resetLocalVoteState").onclick=resetLocalVoteState;
 
   $("#noticeAdminCard").onclick=openNoticeComposer;
   $("#closeNoticeComposer").onclick=closeNoticeComposer;
@@ -4263,10 +4314,12 @@
   async function googleOwnerLogin(statusEl){
     statusEl.className="status";
     statusEl.textContent="Googleログインを開始しています…";
+    enterAdminAfterLogin=true;
+
     try{
       await signInWithPopup(auth,provider);
-      if($("#loginDialog").open) $("#loginDialog").close();
     }catch(e){
+      enterAdminAfterLogin=false;
       console.error(e);
       statusEl.className="status bad";
       statusEl.textContent=authErrorMessage(e);
@@ -4288,11 +4341,13 @@
 
     statusEl.textContent="ログインしています…";
 
+    enterAdminAfterLogin=true;
+
     try{
       await signInWithEmailAndPassword(auth,email,password);
       passwordEl.value="";
-      if($("#loginDialog").open) $("#loginDialog").close();
     }catch(e){
+      enterAdminAfterLogin=false;
       console.error(e);
       statusEl.className="status bad";
       statusEl.textContent=authErrorMessage(e);
@@ -4366,6 +4421,7 @@
       const snap=await getDoc(ref);
 
       if(!snap.exists() || snap.data().enabled!==true){
+        enterAdminAfterLogin=false;
         const rawMail=(user.email||"").toLowerCase();
         const displayId=rawMail.endsWith(`@${TEACHER_AUTH_DOMAIN}`)
           ? rawMail.split("@")[0]
@@ -4413,10 +4469,20 @@
 
       if(isAdmin) await loadVoteResults();
 
-      // 重要：
-      // ログイン済みでも自動で管理画面へは移動しない。
-      // 管理画面への遷移は7回タップ時だけ行う。
+      // このページで「ログイン」操作をした直後だけ管理画面へ直行。
+      // ブラウザ更新・再読込では enterAdminAfterLogin が false なので、
+      // ログイン状態が残っていてもホームのまま。
+      if(enterAdminAfterLogin){
+        enterAdminAfterLogin=false;
+
+        if($("#loginDialog").open){
+          $("#loginDialog").close();
+        }
+
+        go("admin");
+      }
     }catch(error){
+      enterAdminAfterLogin=false;
       console.error(error);
     }
   });
