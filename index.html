@@ -2751,7 +2751,10 @@
     {id:"class-3-3",group:"3年3組",title:"コンカフェ",icon:"☕"},
     {id:"stage-family",group:"家庭クラブ",title:"家庭クラブ",icon:"🏠"},
     {id:"stage-music",group:"音楽部",title:"演奏会に来てね！！！",icon:"🎸"},
-    {id:"stage-dance",group:"ダンス部",title:"Keep Shining☆",icon:"💃"}
+    {id:"stage-dance",group:"ダンス部",title:"Keep Shining☆",icon:"💃"},
+    {id:"club-photo",group:"写真部",title:"夏休みの思い出展",icon:"📷"},
+    {id:"club-art",group:"美術陶芸部",title:"美術部作品展覧会",icon:"🎨"},
+    {id:"club-literature",group:"文芸部",title:"文芸部作品展示",icon:"📚"}
   ];
 
   const OWNER_EMAIL="ishibashichorus@gmail.com";
@@ -2809,7 +2812,6 @@
   $$("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
 
 
-  function crowd(c){return c==="low"?"空いている":c==="mid"?"やや混雑":"混雑";}
   function renderProgramChips(){
     const cats=["すべて","クラス企画","キッチンカー","部活・同好会","生徒会企画","特別企画","体育館ステージ"];
     $("#programChips").innerHTML=cats.map(c=>`<button class="chip ${c===programCategory?"active":""}" data-cat="${c}">${c}</button>`).join("");
@@ -2824,7 +2826,6 @@
         <div class="program-top">
           <div class="program-icon">${p.icon}</div>
           <div><small>${p.group}</small><h3>${p.name}</h3><small>📍 ${p.place}</small></div>
-          <span class="badge ${p.crowd}">${crowd(p.crowd)}</span>
         </div>
         ${p.desc ? `<p>${p.desc}</p>` : ""}
       </div>`).join("");
