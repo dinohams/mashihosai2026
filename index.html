@@ -2515,7 +2515,7 @@
             <h2>投票状況</h2>
             <div class="admin-vote-actions">
               <button id="refreshVoteResults" class="admin-refresh">更新</button>
-              <button id="resetVotesBtn" class="admin-reset" style="display:none">全投票をリセット</button>
+              <button id="resetVotesBtn" class="admin-reset" style="display:none">全投票を本番用にリセット</button>
             </div>
           </div>
           <div class="vote-summary">
@@ -2884,6 +2884,10 @@
   const PUBLIC_STATE_REF=doc(db,"publicData","appState");
   const programContentOverrides=new Map();
   const publicNoticeItems=new Map();
+
+  // 投票テスト／本番を切り替える世代番号。
+  // 全投票リセット時にownerが+1する。
+  let currentVotingRound=1;
   let lockedDescriptionProgramId=null;
   let descriptionLockRenewTimer=null;
   let descriptionSelectionToken=0;
@@ -3024,12 +3028,16 @@
     const data=snapshot?.exists?.() ? snapshot.data() : {};
     return {
       notices:(data?.notices && typeof data.notices==="object") ? data.notices : {},
-      contents:(data?.contents && typeof data.contents==="object") ? data.contents : {}
+      contents:(data?.contents && typeof data.contents==="object") ? data.contents : {},
+      votingRound:Number.isInteger(data?.votingRound) && data.votingRound>=1
+        ? data.votingRound
+        : 1
     };
   }
 
   function applyPublicState(snapshot){
-    const {notices,contents}=publicStateMaps(snapshot);
+    const {notices,contents,votingRound}=publicStateMaps(snapshot);
+    currentVotingRound=votingRound;
 
     programContentOverrides.clear();
     Object.entries(contents).forEach(([programId,data])=>{
@@ -3052,6 +3060,7 @@
     populateDescriptionProgramSelect();
     renderLiveNotices();
     renderOwnerLatestInfo();
+    renderVotePage();
   }
 
   async function updatePublicStateEntry(section,programId,value,{remove=false}={}){
@@ -3068,9 +3077,14 @@
         target[programId]=value;
       }
 
+      const votingRound=Number.isInteger(current?.votingRound) && current.votingRound>=1
+        ? current.votingRound
+        : 1;
+
       transaction.set(PUBLIC_STATE_REF,{
         notices,
         contents,
+        votingRound,
         updatedAt:Timestamp.now()
       });
     });
@@ -3962,7 +3976,12 @@
   function getStoredVote(){
     try{
       const raw=localStorage.getItem("mashihosai2026_vote_complete");
-      return raw ? JSON.parse(raw) : null;
+      if(!raw) return null;
+
+      const stored=JSON.parse(raw);
+
+      // 過去のテストラウンドの投票済み情報は自動的に無効。
+      return stored?.votingRound===currentVotingRound ? stored : null;
     }catch{
       return null;
     }
@@ -4061,17 +4080,24 @@
       ? `owner-test-${Date.now()}-${Math.random().toString(36).slice(2,9)}`
       : getVoteDeviceId();
 
+    // 同じ端末でも、テストと本番は別ドキュメントとして扱う。
+    const voteDocumentId=`round-${currentVotingRound}-${deviceId}`;
+
     try{
-      await setDoc(doc(db,"votes",deviceId),{
+      await setDoc(doc(db,"votes",voteDocumentId),{
         deviceId,
         candidateId:candidate.id,
+        votingRound:currentVotingRound,
         createdAt:serverTimestamp()
       });
 
       if(!ownerTest){
         localStorage.setItem(
           "mashihosai2026_vote_complete",
-          JSON.stringify({candidateId:candidate.id})
+          JSON.stringify({
+            candidateId:candidate.id,
+            votingRound:currentVotingRound
+          })
         );
       }
 
@@ -4107,7 +4133,11 @@
       const counts=Object.fromEntries(voteCandidates.map(c=>[c.id,0]));
 
       snap.forEach(v=>{
-        const id=v.data().candidateId;
+        const data=v.data();
+
+        if(data.votingRound!==currentVotingRound) return;
+
+        const id=data.candidateId;
         if(Object.prototype.hasOwnProperty.call(counts,id)){
           counts[id]++;
         }
@@ -4140,23 +4170,58 @@
     }
   }
 
+  async function advanceVotingRound(){
+    if(!isOwner()) throw new Error("OWNER_ONLY");
+
+    await runTransaction(db,async transaction=>{
+      const snapshot=await transaction.get(PUBLIC_STATE_REF);
+      const current=snapshot.exists() ? snapshot.data() : {};
+
+      const notices=(current?.notices && typeof current.notices==="object")
+        ? current.notices
+        : {};
+      const contents=(current?.contents && typeof current.contents==="object")
+        ? current.contents
+        : {};
+      const oldRound=Number.isInteger(current?.votingRound) && current.votingRound>=1
+        ? current.votingRound
+        : 1;
+
+      transaction.set(PUBLIC_STATE_REF,{
+        notices,
+        contents,
+        votingRound:oldRound+1,
+        updatedAt:Timestamp.now()
+      });
+    });
+  }
+
   async function resetAllVotes(){
     if(!isOwner()) return;
 
     const snap=await getDocs(collection(db,"votes"));
-    const total=snap.size;
 
-    if(total===0){
-      toast("投票はすでに0票です");
-      return;
-    }
+    const currentRoundVotes=snap.docs.filter(
+      d=>d.data().votingRound===currentVotingRound
+    );
+    const total=currentRoundVotes.length;
 
     const ok=confirm(
-      `現在の${total}票をすべて削除します。\n\nこの操作は元に戻せません。よろしいですか？`
+      `現在の投票ラウンド（${currentVotingRound}）を終了して、本番用にリセットします。\n\n`
+      + `現在の得票：${total}票\n`
+      + `・全投票データを削除\n`
+      + `・すべての端末を未投票状態に戻す\n`
+      + `・新しい投票ラウンドを開始\n\n`
+      + `この操作は元に戻せません。よろしいですか？`
     );
     if(!ok) return;
 
     try{
+      // 先にラウンドを進める。
+      // これにより、開いている全端末もリアルタイムで即「未投票」になる。
+      await advanceVotingRound();
+
+      // 過去テスト票は全削除。
       const docs=snap.docs;
 
       for(let i=0;i<docs.length;i+=400){
@@ -4166,10 +4231,11 @@
       }
 
       await loadVoteResults();
-      toast("全投票を0票にリセットしました");
+
+      toast("本番用に投票をリセットしました");
     }catch(err){
       console.error(err);
-      toast("投票のリセットに失敗しました");
+      toast("投票の本番リセットに失敗しました");
     }
   }
 
