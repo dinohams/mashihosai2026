@@ -4,7 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#d85f7b">
-  <title>益子芳星高校 文化祭2026</title>
+  <!-- Production v4.0: stable IDs + single public Firestore document -->
+<title>益子芳星高校 文化祭2026</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap');
 
@@ -2579,6 +2580,7 @@
 
   const programs=[
     {
+      id:"class-1-1",
       name:"アクセサリーを作ろう",
       group:"1年1組",
       place:"1-1HR",
@@ -2588,6 +2590,7 @@
       desc:"私たちのクラスでは、アクセサリーを作ってもらいます！おみくじを引いてもらい、そこに書いてあるラッキーカラーの色に合わせて作ってもらいます！作ったあとはフォトスポットもあるので、ぜひ写真を撮ってください！"
     },
     {
+      id:"class-1-2",
       name:"撃って！撮って！1-2ワールド！",
       group:"1年2組",
       place:"1-2HR",
@@ -2597,6 +2600,7 @@
       desc:"私たち1年2組は、マリオの世界をテーマにしたフォトスポットと射的を用意しました！思い出の1枚をカメラに収めたり、ポイントに応じて景品を貰えたりします。ぜひ遊びに来てください！"
     },
     {
+      id:"class-1-3",
       name:"Shooting mania",
       group:"1年3組",
       place:"1-3HR",
@@ -2606,6 +2610,7 @@
       desc:"Shooting maniaへようこそ！トイ・ストーリー・マニアをイメージした射的ゲームです。狙いを定めて的を撃ち、高得点を目指そう！ポイントに応じてお菓子をプレゼント！1年3組の元気とパワーを楽しんでね。"
     },
     {
+      id:"class-2-1",
       name:"～Trick Art Treat～ 来なきゃイタズラしちゃうぞ♡",
       group:"2年1組",
       place:"2-1HR",
@@ -2615,6 +2620,7 @@
       desc:"皆さんご機嫌よう！ようこそTrick Art Treatの世界へ！「えっ、どうなってる！？」と思わず驚く不思議なことが盛りだくさん！見て、撮って、楽しんで、笑って、最高の思い出を作ってねー！待ってます♥♥"
     },
     {
+      id:"class-2-2",
       name:"一夜限りの縁日",
       group:"2年2組",
       place:"2-2HR",
@@ -2624,6 +2630,7 @@
       desc:"お祭りをテーマに、飲み物やアイス、駄菓子、くじ引きなど、子どもから大人まで楽しめる屋台を用意します！みんなでお祭り気分を味わいながら、楽しい時間を過ごしてください。"
     },
     {
+      id:"class-2-3",
       name:"ドーナツ屋さん",
       group:"2年3組",
       place:"2-3HR",
@@ -2633,6 +2640,7 @@
       desc:"私たちのクラスでは大人気のミスタードーナツを販売しています。甘くておいしいドーナツをたくさん用意して皆さんをお待ちしています！また、個性あふれる店員の衣装にも注目です！益芳祭のおともにぜひ遊びに来てネ。"
     },
     {
+      id:"biz-mashiko-box",
       name:"道の駅ましことコラボ！益子の魅力ぎっしりBOX販売",
       group:"2年進学・ビジネスコース",
       place:"学習室2",
@@ -2642,6 +2650,7 @@
       desc:"高校生の目線で選んだ益子の魅力が詰まったギフトBOXを販売します。購入者限定で、同封のQRコードから各製作グループが紹介する動画を観ることができます。７グループ各10箱、合計７０箱限定販売！お早めに！！"
     },
     {
+      id:"class-3-1",
       name:"廃教会でハロウィンパーティー",
       group:"3年1組",
       place:"3-1HR",
@@ -2651,6 +2660,7 @@
       desc:"1階の3-1の教会では、シスターや黒猫さんたちが、ホットドッグを販売中！教会内は年代物の旧車や蜘蛛の巣がたくさんあるのでぜひ友達と写真をとりに来てください！運が良ければホットドッグの妖精に会えるかも！？"
     },
     {
+      id:"class-3-2",
       name:"ラヴ上等～ハロウィン編",
       group:"3年2組",
       place:"3-2HR",
@@ -2660,6 +2670,7 @@
       desc:"学校購買で人気のパンを販売します！冷たいジュースとアンパンマンチョコもご用意してお待ちしています。写真スポットもあるので、お買い物と一緒に文化祭の思い出を残してください！"
     },
     {
+      id:"class-3-3",
       name:"コンカフェ",
       group:"3年3組",
       place:"3-3HR",
@@ -2669,6 +2680,7 @@
       desc:"いろんなコスプレをした店員がお出迎え♡おいしいドリンクやスイーツを楽しみながら特別な時間を一緒に過ごしませんか？ぜひ遊びに来てね！！"
     },
     {
+      id:"food-369",
       name:"キッチンカー369",
       group:"PTA",
       place:"屋外",
@@ -2678,6 +2690,7 @@
       desc:"｢楽しい｣｢嬉しい｣｢美味しい｣ただお客様を笑顔にしたい！そんなフードトラックです。タコライスやクロッフルなど、お食事からデザートまで御用意しておりますので是非お立ち寄り下さい。"
     },
     {
+      id:"food-pizza",
       name:"pizzeria dellfeeno",
       group:"PTA",
       place:"屋外",
@@ -2687,6 +2700,7 @@
       desc:"益子町で移動販売してるpizzeria dellfeenoです。大谷石の窯で焼き上げる本格ナポリピッツァです。益子産の食材を使ったアツアツのピッツァを是非お楽しみ下さい。"
     },
     {
+      id:"food-cafe-maman",
       name:"CAFE DE MAMAN",
       group:"PTA",
       place:"屋外",
@@ -2696,6 +2710,7 @@
       desc:"益子よりブリュレスタイルのクレープ屋です♪スタンダードなクレープやバターとお砂糖のクレープも人気です♪学園祭のお供にいかがですか？"
     },
     {
+      id:"food-zarrys",
       name:"Zarrys Kebab",
       group:"PTA",
       place:"屋外",
@@ -2705,6 +2720,7 @@
       desc:"Zarry Kebabはキッチンカーでケバブをお届けしております。串焼きで手掛けるケバブは、他では味わえない絶品です！ソースがチキンとサラダに絡み合い、ピタパンとの相性抜群です！ぜひお召し上がりください！"
     },
     {
+      id:"club-photo",
       name:"夏休みの思い出展",
       group:"写真部",
       place:"地歴室（教室棟1F）",
@@ -2714,6 +2730,7 @@
       desc:"こんにちは！私たち写真部は、1階の地歴室で写真の展示を行っています。テーマは夏休みの思い出です。ぜひ見に来てください。"
     },
     {
+      id:"club-art",
       name:"美術部作品展覧会",
       group:"美術陶芸部",
       place:"美術室（教室棟2F）",
@@ -2723,6 +2740,7 @@
       desc:"美術部部員が制作したイラスト、焼き物などが展示されます。あなたの好きなキャラクターがいるかも？ぜひ立ち寄ってみてください。"
     },
     {
+      id:"club-handicraft",
       name:"おいでよ！手芸の部屋",
       group:"手芸同好会",
       place:"被服室（管理棟2F）",
@@ -2732,6 +2750,7 @@
       desc:"私たち手芸同好会は、被服室で制作したビーズストラップの販売や気軽に楽しめるワークショップを行います。ぜひ、お気に入りのストラップを見つけたり、ワークショップを体験したりして楽しんでください。"
     },
     {
+      id:"club-tea",
       name:"お茶会",
       group:"茶道部",
       place:"家庭経営室（管理棟3F）",
@@ -2741,6 +2760,7 @@
       desc:"茶道部では、心を込めてお茶を作り、皆さんにお届けします。普段なかなか体験できない茶道の雰囲気を楽しみながら、ゆっくりとしたひと時を過ごしてみませんか？部員が皆さんをお待ちしています！"
     },
     {
+      id:"club-literature",
       name:"文芸部作品展示",
       group:"文芸部",
       place:"昇降口",
@@ -2750,6 +2770,7 @@
       desc:"私たち文芸部は、自作の小説を展示・配布しています。是非、手に取ってご覧ください。"
     },
     {
+      id:"student-holobreak",
       name:"ホロブレイク",
       group:"生徒会",
       place:"学習室3（教室棟1F）",
@@ -2759,6 +2780,7 @@
       desc:"ホロブレイク体験会を実施します。時間帯10:00～11:00／12:00～13:00 ぜひお越しください。"
     },
     {
+      id:"police-moka",
       name:"広報活動、体験活動",
       group:"真岡警察署",
       place:"昇降口",
@@ -2768,6 +2790,7 @@
       desc:"真岡警察署のパトカーが展示されています。また、ここでしかできない体験もできます。ぜひ足をお運びください。"
     },
     {
+      id:"stage-family",
       name:"家庭クラブ発表",
       group:"家庭クラブ",
       place:"体育館",
@@ -2777,6 +2800,7 @@
       desc:"みなさんこんにちは、家庭クラブです！今年度の活動内容を発表します。1年生に家庭クラブについて興味を持ってもらえたら嬉しいです！"
     },
     {
+      id:"stage-music",
       name:"演奏会のご案内！",
       group:"音楽部",
       place:"体育館",
@@ -2786,6 +2810,7 @@
       desc:"私たち音楽部は来月11月8日（日）、益子芳星高校体育館で第6回目となる演奏会を開催します！開場は13時30分、開演は14時です。曲はもちろん、衣装や演出にもこだわったライブとなります。ぜひご来場ください！！"
     },
     {
+      id:"stage-dance",
       name:"Keep Shining☆",
       group:"ダンス部",
       place:"体育館",
@@ -2795,6 +2820,7 @@
       desc:"私たちが一番大切にしているのは、「キープシャイニング」……いつでも自分たちが輝き続け、その輝きでみんなを元気にすること。弾ける笑顔と全力のパフォーマンスで、会場全体に最高なエネルギーをお届けします！"
     },
     {
+      id:"stage-volunteer",
       name:"有志発表",
       group:"有志団体",
       place:"体育館",
@@ -2807,9 +2833,9 @@
 
 
 
-  const noticePrograms=programs.map((program,index)=>({
+  const noticePrograms=programs.map(program=>({
     ...program,
-    noticeId:`program-${String(index+1).padStart(2,"0")}`
+    noticeId:program.id
   }));
 
   const NOTICE_LOCK_MS=90000;
@@ -2831,7 +2857,9 @@
   let noticeLockRenewTimer=null;
   let noticeSelectionToken=0;
 
+  const PUBLIC_STATE_REF=doc(db,"publicData","appState");
   const programContentOverrides=new Map();
+  const publicNoticeItems=new Map();
   let lockedDescriptionProgramId=null;
   let descriptionLockRenewTimer=null;
   let descriptionSelectionToken=0;
@@ -2875,8 +2903,11 @@
   }
 
   function programIdFor(program){
-    const item=noticePrograms.find(p=>p===program || (p.group===program.group && p.name===program.name));
-    return item?.noticeId || "";
+    return program?.id || program?.noticeId || "";
+  }
+
+  function programById(programId){
+    return noticePrograms.find(program=>program.noticeId===programId) || null;
   }
 
   function effectiveProgramTitle(program){
@@ -2961,26 +2992,75 @@
   }
 
 
-  onSnapshot(
-    collection(db,"programDescriptions"),
-    snapshot=>{
-      programContentOverrides.clear();
+  function timestampMillis(value){
+    return value?.toMillis ? value.toMillis() : 0;
+  }
 
-      snapshot.forEach(docSnap=>{
-        const data=docSnap.data();
-        programContentOverrides.set(docSnap.id,{
-          title:typeof data.title==="string" ? data.title : "",
-          text:typeof data.text==="string" ? data.text : ""
-        });
+  function publicStateMaps(snapshot){
+    const data=snapshot?.exists?.() ? snapshot.data() : {};
+    return {
+      notices:(data?.notices && typeof data.notices==="object") ? data.notices : {},
+      contents:(data?.contents && typeof data.contents==="object") ? data.contents : {}
+    };
+  }
+
+  function applyPublicState(snapshot){
+    const {notices,contents}=publicStateMaps(snapshot);
+
+    programContentOverrides.clear();
+    Object.entries(contents).forEach(([programId,data])=>{
+      if(!data || typeof data!=="object") return;
+      programContentOverrides.set(programId,{
+        title:typeof data.title==="string" ? data.title : "",
+        text:typeof data.text==="string" ? data.text : ""
       });
+    });
 
+    publicNoticeItems.clear();
+    Object.entries(notices).forEach(([programId,data])=>{
+      if(!data || typeof data!=="object") return;
+      publicNoticeItems.set(programId,{...data,programId});
+    });
+
+    renderPrograms();
+    renderRecommendation();
+    populateNoticeProgramSelect();
+    populateDescriptionProgramSelect();
+    renderLiveNotices();
+    renderOwnerLatestInfo();
+  }
+
+  async function updatePublicStateEntry(section,programId,value,{remove=false}={}){
+    await runTransaction(db,async transaction=>{
+      const snapshot=await transaction.get(PUBLIC_STATE_REF);
+      const current=snapshot.exists() ? snapshot.data() : {};
+      const notices=(current?.notices && typeof current.notices==="object") ? {...current.notices} : {};
+      const contents=(current?.contents && typeof current.contents==="object") ? {...current.contents} : {};
+      const target=section==="notices" ? notices : contents;
+
+      if(remove){
+        delete target[programId];
+      }else{
+        target[programId]=value;
+      }
+
+      transaction.set(PUBLIC_STATE_REF,{
+        notices,
+        contents,
+        updatedAt:Timestamp.now()
+      });
+    });
+  }
+
+  onSnapshot(
+    PUBLIC_STATE_REF,
+    applyPublicState,
+    error=>{
+      console.error("public state listener:",error);
+      // 静的なパンフレットデータはHTML内にあるため、
+      // Firestoreが一時的に読めなくても企画一覧は利用可能。
       renderPrograms();
       renderRecommendation();
-      populateNoticeProgramSelect();
-      populateDescriptionProgramSelect();
-    },
-    error=>{
-      console.error("program description listener:",error);
     }
   );
 
@@ -3007,55 +3087,36 @@
     return `${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
   }
 
-  function renderLiveNotices(snapshot){
+  function currentNoticeEntries(){
+    return [...publicNoticeItems.values()]
+      .filter(item=>typeof item.text==="string" && item.text.trim())
+      .sort((a,b)=>timestampMillis(b.updatedAt)-timestampMillis(a.updatedAt));
+  }
+
+  function renderLiveNotices(){
     const section=$("#liveNoticeSection");
     const list=$("#liveNoticeList");
+    const entries=currentNoticeEntries();
 
-    if(snapshot.empty){
-      section.hidden=true;
-      list.innerHTML="";
-      return;
-    }
-
-    // createdAt降順の先頭から、同じ企画は最初の1件だけ採用。
-    // 旧バージョンで作った重複投稿がFirestoreに残っていても
-    // 画面上には各企画の最新情報だけを表示する。
-    const seenPrograms=new Set();
-    const latestDocs=[];
-
-    for(const docSnap of snapshot.docs){
-      const n=docSnap.data();
-      const key=n.programId || `${n.programGroup}|${n.programTitle}`;
-
-      if(seenPrograms.has(key)) continue;
-
-      // 最初に見つかった最新データで企画を確定。
-      // 本文が空ならホームには出さないが、
-      // その企画の古い投稿が復活することも防ぐ。
-      seenPrograms.add(key);
-
-      if((n.text || "").trim()){
-        latestDocs.push(docSnap);
-      }
-    }
-
-    if(!latestDocs.length){
+    if(!entries.length){
       section.hidden=true;
       list.innerHTML="";
       return;
     }
 
     section.hidden=false;
-    list.innerHTML=latestDocs.map(docSnap=>{
-      const n=docSnap.data();
+    list.innerHTML=entries.map(n=>{
+      const program=programById(n.programId);
+      const title=program ? effectiveProgramTitle(program) : (n.programTitle || "");
+      const group=program?.group || n.programGroup || "企画";
       return `
         <article class="live-notice-card">
           <div class="live-notice-head">
             <div>
-              <small>${escapeHtmlLocal(n.programGroup || "企画")}</small>
-              <strong>${escapeHtmlLocal(n.programTitle || "")}</strong>
+              <small>${escapeHtmlLocal(group)}</small>
+              <strong>${escapeHtmlLocal(title)}</strong>
             </div>
-            <time>${formatNoticeTime(n.createdAt)}</time>
+            <time>${formatNoticeTime(n.updatedAt)}</time>
           </div>
           <p>${escapeHtmlLocal(n.text || "")}</p>
         </article>
@@ -3063,26 +3124,7 @@
     }).join("");
   }
 
-  function getLatestNoticeDocsByProgram(snapshot){
-    const seen=new Set();
-    const latest=[];
-
-    for(const docSnap of snapshot.docs){
-      const n=docSnap.data();
-      const key=n.programId || `${n.programGroup}|${n.programTitle}`;
-
-      if(seen.has(key)) continue;
-      seen.add(key);
-
-      if((n.text || "").trim()){
-        latest.push(docSnap);
-      }
-    }
-
-    return latest;
-  }
-
-  function renderOwnerLatestInfo(snapshot){
+  function renderOwnerLatestInfo(){
     const panel=$("#ownerLatestInfoPanel");
     const list=$("#ownerLatestInfoList");
 
@@ -3095,40 +3137,36 @@
     }
 
     panel.style.display="block";
+    const entries=currentNoticeEntries();
 
-    const latestDocs=getLatestNoticeDocsByProgram(snapshot);
-
-    if(!latestDocs.length){
+    if(!entries.length){
       list.innerHTML='<div class="owner-latest-empty">現在表示中の最新情報はありません。</div>';
       return;
     }
 
-    list.innerHTML=latestDocs.map(docSnap=>{
-      const n=docSnap.data();
-      const programId=n.programId || "";
-
+    list.innerHTML=entries.map(n=>{
+      const program=programById(n.programId);
+      const title=program ? effectiveProgramTitle(program) : (n.programTitle || "");
+      const group=program?.group || n.programGroup || "企画";
       return `
         <article class="owner-latest-item">
           <div class="owner-latest-content">
-            <small>${escapeHtmlLocal(n.programGroup || "企画")}</small>
-            <strong>${escapeHtmlLocal(n.programTitle || "")}</strong>
+            <small>${escapeHtmlLocal(group)}</small>
+            <strong>${escapeHtmlLocal(title)}</strong>
             <p>${escapeHtmlLocal(n.text || "")}</p>
-            <time>${formatNoticeTime(n.createdAt)}</time>
+            <time>${formatNoticeTime(n.updatedAt)}</time>
           </div>
           <button
             class="owner-latest-delete"
-            data-program-id="${escapeHtmlLocal(programId)}"
-            data-title="${escapeHtmlLocal(n.programTitle || "")}"
+            data-program-id="${escapeHtmlLocal(n.programId || "")}"
+            data-title="${escapeHtmlLocal(title)}"
           >削除</button>
         </article>
       `;
     }).join("");
 
     $$(".owner-latest-delete").forEach(btn=>{
-      btn.onclick=()=>ownerDeleteLatestInfo(
-        btn.dataset.programId,
-        btn.dataset.title
-      );
+      btn.onclick=()=>ownerDeleteLatestInfo(btn.dataset.programId,btn.dataset.title);
     });
   }
 
@@ -3141,43 +3179,13 @@
     if(!ok) return;
 
     try{
-      const snap=await getDocs(collection(db,"liveNotices"));
-      const targets=snap.docs.filter(d=>d.data().programId===programId);
-
-      for(let i=0;i<targets.length;i+=400){
-        const batch=writeBatch(db);
-        targets.slice(i,i+400).forEach(d=>batch.delete(d.ref));
-        await batch.commit();
-      }
-
+      await updatePublicStateEntry("notices",programId,null,{remove:true});
       toast("最新情報を削除しました");
     }catch(error){
       console.error("owner latest info delete failed:",error);
       toast("削除に失敗しました");
     }
   }
-
-
-  const liveNoticeQuery=query(
-    collection(db,"liveNotices"),
-    orderBy("createdAt","desc"),
-    limit(100)
-  );
-
-  onSnapshot(
-    liveNoticeQuery,
-    snapshot=>{
-      renderLiveNotices(snapshot);
-      renderOwnerLatestInfo(snapshot);
-    },
-    error=>{
-      console.error("live notice listener:",error);
-      $("#liveNoticeSection").hidden=true;
-      if($("#ownerLatestInfoList")){
-        $("#ownerLatestInfoList").innerHTML='<div class="owner-latest-empty">最新情報を取得できませんでした。</div>';
-      }
-    }
-  );
 
   function populateNoticeProgramSelect(){
     const select=$("#noticeProgramSelect");
@@ -3361,23 +3369,9 @@
   }
 
   async function loadCurrentProgramContent(program){
-    const snap=await getDoc(doc(db,"programDescriptions",program.noticeId));
-
-    if(snap.exists()){
-      const data=snap.data();
-      return {
-        title:typeof data.title==="string" && data.title.trim()
-          ? data.title
-          : program.name,
-        text:typeof data.text==="string"
-          ? data.text
-          : (program.desc || "")
-      };
-    }
-
     return {
-      title:program.name,
-      text:program.desc || ""
+      title:effectiveProgramTitle(program),
+      text:effectiveProgramDescription(program)
     };
   }
 
@@ -3466,20 +3460,19 @@
     setDescriptionLockMessage("更新しています…","checking");
 
     try{
-      await setDoc(doc(db,"programDescriptions",program.noticeId),{
-        programId:program.noticeId,
+      await updatePublicStateEntry("contents",program.noticeId,{
         programGroup:program.group,
         programTitle:program.name,
         title:title,
         text:body,
-        updatedAt:serverTimestamp()
+        updatedAt:Timestamp.now()
       });
 
       await releaseDescriptionLock(program.noticeId);
 
       $("#descriptionProgramSelect").value="";
       $("#descriptionText").value="";
-      $("#descriptionCharCount").textContent="0 / 1200";
+      $("#descriptionCharCount").textContent="タイトル 0 / 160　紹介文 0 / 1200";
       setDescriptionEditorEnabled(false);
       setDescriptionLockMessage("紹介文を更新しました。","sent");
       toast("紹介文を更新しました");
@@ -3526,52 +3519,7 @@
 
 
   async function getLatestNoticeText(programId){
-    // 現行の固定ドキュメントを最優先。
-    const fixedRef=doc(db,"liveNotices",programId);
-    const fixedSnap=await getDoc(fixedRef);
-    if(fixedSnap.exists()){
-      return fixedSnap.data().text || "";
-    }
-
-    // 旧バージョンでランダムID保存された投稿が残っていても、
-    // 企画ごとの最新本文を拾えるようにする。
-    const snap=await getDocs(
-      query(collection(db,"liveNotices"),orderBy("createdAt","desc"),limit(100))
-    );
-
-    const found=snap.docs.find(d=>d.data().programId===programId);
-    return found ? (found.data().text || "") : "";
-  }
-
-  async function removeAllNoticesForProgram(programId){
-    // 固定ID版＋旧ランダムID版をまとめて削除し、
-    // 古い投稿が再表示されるのを防ぐ。
-    const snap=await getDocs(collection(db,"liveNotices"));
-    const targets=snap.docs.filter(d=>d.data().programId===programId);
-
-    if(!targets.length) return;
-
-    for(let i=0;i<targets.length;i+=400){
-      const batch=writeBatch(db);
-      targets.slice(i,i+400).forEach(d=>batch.delete(d.ref));
-      await batch.commit();
-    }
-  }
-
-  async function removeLegacyDuplicateNotices(programId){
-    // 最新投稿を固定IDへ保存した後、同じ企画の旧ランダムID投稿だけ掃除。
-    const snap=await getDocs(collection(db,"liveNotices"));
-    const legacy=snap.docs.filter(
-      d=>d.id!==programId && d.data().programId===programId
-    );
-
-    if(!legacy.length) return;
-
-    for(let i=0;i<legacy.length;i+=400){
-      const batch=writeBatch(db);
-      legacy.slice(i,i+400).forEach(d=>batch.delete(d.ref));
-      await batch.commit();
-    }
+    return publicNoticeItems.get(programId)?.text || "";
   }
 
   function clearNoticeRenewTimer(){
@@ -3774,30 +3722,21 @@
 
     try{
       if(body){
-        // 同じ企画は固定IDへ上書き。
-        await setDoc(doc(db,"liveNotices",program.noticeId),{
-          programId:program.noticeId,
+        await updatePublicStateEntry("notices",program.noticeId,{
           programGroup:program.group,
-          programTitle:program.name,
+          programTitle:effectiveProgramTitle(program),
           text:body,
-          createdAt:serverTimestamp()
+          updatedAt:Timestamp.now()
         });
-
-        // 旧バージョンの重複投稿があれば掃除。
-        await removeLegacyDuplicateNotices(program.noticeId);
       }else{
         // 空欄送信＝ホームから非表示。
-        // 実データの完全削除はオーナー専用「最新情報一覧」からのみ行う。
-        await setDoc(doc(db,"liveNotices",program.noticeId),{
-          programId:program.noticeId,
+        // キー自体の完全削除はオーナー専用「最新情報一覧」からのみ行う。
+        await updatePublicStateEntry("notices",program.noticeId,{
           programGroup:program.group,
           programTitle:effectiveProgramTitle(program),
           text:"",
-          createdAt:serverTimestamp()
+          updatedAt:Timestamp.now()
         });
-
-        // 旧ランダムID投稿が残っていても古い情報が復活しないよう、
-        // 固定IDの空データを最新状態として保持する。
       }
 
       await releaseNoticeLock(program.noticeId);
@@ -4470,6 +4409,7 @@
       syncOwnerSimulationUI();
       renderNowPlaying();
       renderVotePage();
+      renderOwnerLatestInfo();
 
       if(isAdmin) await loadVoteResults();
 
