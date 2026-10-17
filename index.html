@@ -3021,6 +3021,7 @@
   const OWNER_EMAIL="ishibashichorus@gmail.com";
   let selectedVoteCandidate=null;
   let lastRecommendationKey=null;
+  let unsubscribeVoteResults=null;
 
   function isOwner(){
     return (auth.currentUser?.email || "").toLowerCase() === OWNER_EMAIL;
@@ -4347,10 +4348,20 @@
       ? `owner-test-${Date.now()}-${Math.random().toString(36).slice(2,9)}`
       : getVoteDeviceId();
 
-    // 同じ端末でも、テストと本番は別ドキュメントとして扱う。
-    const voteDocumentId=`round-${currentVotingRound}-${deviceId}`;
-
     try{
+      // 投票直前にFirestoreの最新ラウンドを取得。
+      // ページを開きっぱなしでも古いラウンドへ投票しないようにする。
+      const stateSnap=await getDoc(PUBLIC_STATE_REF);
+      if(stateSnap.exists()){
+        const liveRound=stateSnap.data()?.votingRound;
+        if(Number.isInteger(liveRound) && liveRound>=1){
+          currentVotingRound=liveRound;
+        }
+      }
+
+      // 同じ端末でも、テストと本番は別ドキュメントとして扱う。
+      const voteDocumentId=`round-${currentVotingRound}-${deviceId}`;
+
       await setDoc(doc(db,"votes",voteDocumentId),{
         deviceId,
         candidateId:candidate.id,
@@ -4389,51 +4400,85 @@
     }
   }
 
+  function renderVoteResultsSnapshot(snap){
+    const counts=Object.fromEntries(voteCandidates.map(c=>[c.id,0]));
+
+    snap.forEach(v=>{
+      const data=v.data();
+
+      if(data.votingRound!==currentVotingRound) return;
+
+      const id=data.candidateId;
+      if(Object.prototype.hasOwnProperty.call(counts,id)){
+        counts[id]++;
+      }
+    });
+
+    const total=Object.values(counts).reduce((a,b)=>a+b,0);
+    $("#voteTotal").textContent=total;
+
+    const rows=voteCandidates
+      .map(c=>({...c,count:counts[c.id]||0}))
+      .sort((a,b)=>b.count-a.count || a.group.localeCompare(b.group,"ja"));
+
+    const max=Math.max(1,...rows.map(r=>r.count));
+
+    $("#voteResults").innerHTML=rows.map(r=>`
+      <div class="vote-result-row">
+        <div class="vote-result-top">
+          <div>
+            <small>${escapeHtmlLocal(r.group)}</small>
+            <strong>${escapeHtmlLocal(r.title)}</strong>
+          </div>
+          <b>${r.count}票</b>
+        </div>
+        <div class="vote-bar"><i style="width:${(r.count/max)*100}%"></i></div>
+      </div>
+    `).join("");
+  }
+
   async function loadVoteResults(){
-    if(allowedUser?.role!=="admin") return;
+    if(!isOwner() && allowedUser?.role!=="admin") return;
 
     const results=$("#voteResults");
     results.innerHTML='<div class="vote-loading">集計中…</div>';
 
     try{
       const snap=await getDocs(collection(db,"votes"));
-      const counts=Object.fromEntries(voteCandidates.map(c=>[c.id,0]));
-
-      snap.forEach(v=>{
-        const data=v.data();
-
-        if(data.votingRound!==currentVotingRound) return;
-
-        const id=data.candidateId;
-        if(Object.prototype.hasOwnProperty.call(counts,id)){
-          counts[id]++;
-        }
-      });
-
-      const total=Object.values(counts).reduce((a,b)=>a+b,0);
-      $("#voteTotal").textContent=total;
-
-      const rows=voteCandidates
-        .map(c=>({...c,count:counts[c.id]||0}))
-        .sort((a,b)=>b.count-a.count || a.group.localeCompare(b.group,"ja"));
-
-      const max=Math.max(1,...rows.map(r=>r.count));
-
-      results.innerHTML=rows.map(r=>`
-        <div class="vote-result-row">
-          <div class="vote-result-top">
-            <div>
-              <small>${escapeHtmlLocal(r.group)}</small>
-              <strong>${escapeHtmlLocal(r.title)}</strong>
-            </div>
-            <b>${r.count}票</b>
-          </div>
-          <div class="vote-bar"><i style="width:${(r.count/max)*100}%"></i></div>
-        </div>
-      `).join("");
+      renderVoteResultsSnapshot(snap);
     }catch(err){
       console.error(err);
       results.innerHTML='<div class="vote-loading error">投票状況を取得できませんでした。Firestoreルールを確認してください。</div>';
+    }
+  }
+
+  function startVoteResultsListener(){
+    if(!isOwner() && allowedUser?.role!=="admin") return;
+
+    if(unsubscribeVoteResults){
+      unsubscribeVoteResults();
+      unsubscribeVoteResults=null;
+    }
+
+    $("#voteResults").innerHTML='<div class="vote-loading">集計中…</div>';
+
+    unsubscribeVoteResults=onSnapshot(
+      collection(db,"votes"),
+      snap=>{
+        renderVoteResultsSnapshot(snap);
+      },
+      err=>{
+        console.error("vote results listener:",err);
+        $("#voteResults").innerHTML=
+          '<div class="vote-loading error">投票状況を取得できませんでした。Firestoreルールを確認してください。</div>';
+      }
+    );
+  }
+
+  function stopVoteResultsListener(){
+    if(unsubscribeVoteResults){
+      unsubscribeVoteResults();
+      unsubscribeVoteResults=null;
     }
   }
 
@@ -4992,6 +5037,7 @@
     allowedUser=null;
 
     if(!user){
+      stopVoteResultsListener();
       $("#adminLoggedOut").style.display="block";
       $("#adminLoggedIn").classList.remove("show");
       $("#voteAdminPanel").style.display="none";
@@ -5059,7 +5105,10 @@
       renderOwnerLatestInfo();
 
       if(owner) await loadTeacherLoginLockStatus();
-      if(isAdmin) await loadVoteResults();
+
+      if(owner || isAdmin){
+        startVoteResultsListener();
+      }
 
       // このページで「ログイン」操作をした直後だけ管理画面へ直行。
       // ブラウザ更新・再読込では enterAdminAfterLogin が false なので、
